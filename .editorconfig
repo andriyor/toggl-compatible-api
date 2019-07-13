@@ -1,0 +1,17 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# matches all files
+[*]
+indent_style = tab
+indent_size = 2
+
+# only json
+[*.json]
+indent_style = space
+indent_size = 2
+
+
+
