@@ -29,21 +29,22 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 	await pool.query(timeEntriesTable);
 	for (let i = 0; i < 10; i++) {
 		const data = {
-			name: faker.name.firstName(0),
-				age: faker.random.number(100),
-				classroom: faker.random.word(),
-				parents: faker.random.word(),
-				admission: faker.random.word()
+			pid: faker.random.number(100),
+			wid: faker.random.number(100),
+			billable: faker.random.boolean(),
+			start: faker.date.future(0.1),
+			duration: faker.random.number(100),
+			description: faker.random.words(),
 		};
-		const query = `INSERT INTO students(student_name,student_age, student_class, parent_contact, admission_date)
-									 VALUES($1,$2,$3,$4,$5) RETURNING *`;
-		const values = [data.name, data.age, data.classroom, data.parents, data.admission];
+		const query = `INSERT INTO time_entries(pid, wid, billable, start, duration, description)
+									 VALUES($1,$2,$3,$4,$5, $6) RETURNING *`;
+		const values = [data.pid, data.wid, data.billable, data.start, data.duration, data.description];
 		await pool.query(query, values);
 	}
 	//
-	// const query = 'SELECT * FROM students WHERE id = 274';
-	// const { rows } = await pool.query(query);
-	// console.log(rows[0]);
+	const query = 'SELECT * FROM time_entries WHERE id = 274';
+	const { rows } = await pool.query(query);
+	console.log(rows[0]);
 
 	await pool.end();
 })();

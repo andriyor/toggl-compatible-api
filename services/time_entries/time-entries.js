@@ -1,5 +1,4 @@
 const { Pool } = require('pg');
-const faker = require('faker');
 
 const config = {
 	user: 'postgres', //this is the db user credential
@@ -11,7 +10,6 @@ const config = {
 };
 
 const pool = new Pool(config);
-
 
 module.exports = async function (fastify, opt) {
   const opts = {
@@ -29,21 +27,41 @@ module.exports = async function (fastify, opt) {
         200: {
           type: 'object',
           properties: {
-						id: {type: 'integer'},
-						student_name: {type: 'string'},
-						student_age: {type: 'integer'},
-						student_class: {type: 'string'},
-						parent_contact: {type: 'string'},
-						admission_date: {type: 'string'}
+						"id": {
+							"type": "integer"
+						},
+						"wid": {
+							"type": "integer"
+						},
+						"pid": {
+							"type": "integer"
+						},
+						"billable": {
+							"type": "boolean"
+						},
+						"start": {
+							"type": "string",
+							"format": "date-time"
+						},
+						"duration": {
+							"type": "integer"
+						},
+						"description": {
+							"type": "string"
+						},
+						"at": {
+							"type": "string",
+							"format": "date-time"
+						}
           }
         }
       }
     }
   };
-  fastify.get('/api/v8/time_entries/:time_entry_id', opts, async function (request, reply) {
-		const query = 'SELECT * FROM students WHERE id = $1';
+  fastify.get('/time_entries/:time_entry_id', opts, async function (request, reply) {
+		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
-  	return rows[0]
+		return rows[0]
   });
 };
 
