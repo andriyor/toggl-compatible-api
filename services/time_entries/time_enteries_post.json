@@ -1,0 +1,13 @@
+{
+  "time_entry": {
+    "pid": 123,
+    "wid": 125,
+    "tid": 125,
+    "description": "Meeting with possible clients",
+    "billable":false,
+    "tags": ["billed"],
+    "duration": 1200,
+    "start": "2013-03-05T07:58:58.000Z",
+    "created_with": "curl"
+  }
+}

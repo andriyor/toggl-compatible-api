@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/TimeEnteriesPostSchem",
+    "definitions": {
+        "TimeEnteriesPostSchem": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "time_entry": {
+                    "$ref": "#/definitions/TimeEntry"
+                }
+            },
+            "required": [
+                "time_entry"
+            ],
+            "title": "TimeEnteriesPostSchem"
+        },
+        "TimeEntry": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "pid": {
+                    "type": "integer"
+                },
+                "wid": {
+                    "type": "integer"
+                },
+                "tid": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "billable": {
+                    "type": "boolean"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "created_with": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "billable",
+                "created_with",
+                "description",
+                "duration",
+                "pid",
+                "start",
+                "tags",
+                "tid",
+                "wid"
+            ],
+            "title": "TimeEntry"
+        }
+    }
+}

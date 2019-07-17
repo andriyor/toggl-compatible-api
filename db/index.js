@@ -17,6 +17,8 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
     id SERIAL PRIMARY KEY,
     pid INT,
     wid INT,
+    tid INT,
+    created_with VARCHAR(128),
     billable BOOLEAN,
     start TIMESTAMP,
     duration INT,
@@ -31,20 +33,20 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 		const data = {
 			pid: faker.random.number(100),
 			wid: faker.random.number(100),
+			tid: faker.random.number(100),
+			tags: [faker.random.word(), faker.random.word()],
+			created_with: faker.random.word(),
 			billable: faker.random.boolean(),
 			start: faker.date.future(0.1),
 			duration: faker.random.number(100),
 			description: faker.random.words(),
 		};
-		const query = `INSERT INTO time_entries(pid, wid, billable, start, duration, description)
-									 VALUES($1,$2,$3,$4,$5, $6) RETURNING *`;
-		const values = [data.pid, data.wid, data.billable, data.start, data.duration, data.description];
+		const query = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, start, duration, description, tags)
+									 VALUES($1,$2,$3,$4,$5, $6, $7, $8, $9) RETURNING *`;
+		const values = [data.pid, data.wid, data.tid, data.created_with, data.billable, data.start,
+										data.duration, data.description, data.tags];
 		await pool.query(query, values);
 	}
-	//
-	const query = 'SELECT * FROM time_entries WHERE id = 274';
-	const { rows } = await pool.query(query);
-	console.log(rows[0]);
 
 	await pool.end();
 })();

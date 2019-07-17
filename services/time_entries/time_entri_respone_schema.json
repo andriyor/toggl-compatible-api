@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-06/schema#",
-    "$ref": "#/definitions/Schema",
+    "$ref": "#/definitions/TimeEntriResponeSchema",
     "definitions": {
-        "Schema": {
+        "TimeEntriResponeSchema": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -43,7 +43,7 @@
                 "start",
                 "wid"
             ],
-            "title": "Schema"
+            "title": "TimeEntriResponeSchema"
         }
     }
 }
