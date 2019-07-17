@@ -21,6 +21,9 @@ const responseTimeEntries = {
 	pid: {
 		type: "integer"
 	},
+	tid: {
+		type: "integer"
+	},
 	billable: {
 		type: "boolean"
 	},
@@ -64,7 +67,7 @@ timeEntriesPost.created_with = {type: "string"};
 const {duration, start, ...timeEntriesStart} = timeEntriesPost;
 
 
-module.exports = async function (fastify, opt) {
+module.exports = async (fastify) => {
   const opts = {
     schema: {
 			params: {
@@ -79,7 +82,7 @@ module.exports = async function (fastify, opt) {
       response: successfulResponse
     }
   };
-  fastify.get('/:time_entry_id', opts, async function (request, reply) {
+  fastify.get('/:time_entry_id', opts, async (request) => {
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
 		return {data: rows[0]}
@@ -94,14 +97,14 @@ module.exports = async function (fastify, opt) {
 					time_entry: {
 						type: 'object',
 						properties: timeEntriesPost,
-						required: ["duration", "start"]
+						required: ["duration", "start", "created_with"]
 					}
 				}
 			},
 			response: successfulResponse
 		}
 	};
-	fastify.post('/', time_entries_post, async function (request, reply) {
+	fastify.post('/', time_entries_post, async (request) => {
 		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, start, duration, description, tags)
 									 VALUES($1,$2,$3,$4,$5, $6, $7, $8) RETURNING *`;
 		const values = [request.body.time_entry.pid, request.body.time_entry.wid, request.body.time_entry.created_with,
@@ -120,22 +123,24 @@ module.exports = async function (fastify, opt) {
 				properties: {
 					time_entry: {
 						type: 'object',
-						properties: timeEntriesStart
+						properties: timeEntriesStart,
+						required: ['created_with']
 					}
 				}
 			},
 			response: successfulResponse
 		}
 	};
-	fastify.post('/start', timeEntriesStartSchema, async function (request, reply) {
-		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start)
-									 VALUES($1,$2,$3,$4,$5, $6, $7) RETURNING *`;
+	fastify.post('/start', timeEntriesStartSchema, async (request) => {
+		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start, duration)
+									 VALUES($1,$2,$3,$4,$5, $6, $7, $8) RETURNING *`;
+		const nowDate = new Date();
+		const duration = - Math.floor(nowDate / 1000);
 		const values = [request.body.time_entry.pid, request.body.time_entry.wid, request.body.time_entry.created_with,
 										request.body.time_entry.billable, request.body.time_entry.description,
-										request.body.time_entry.tags, new Date()];
+										request.body.time_entry.tags, nowDate, duration];
 		const { rows } =  await pool.query(query, values);
-		const  timeEntry = rows[0].duration = - Math.floor(new Date(rows[0].start) / 1000);
-		return {data: timeEntry}
+		return {data: rows[0]}
 	});
 
 
@@ -153,17 +158,27 @@ module.exports = async function (fastify, opt) {
 			response: successfulResponse
 		}
 	};
-	fastify.post('/:time_entry_id/stop', timeEntryStopSchema, async function (request, reply) {
+	fastify.put('/:time_entry_id/stop', timeEntryStopSchema, async (request) => {
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
 
-		const startEpoch = new Date(rows[0].start);
-		const nowEpoch = new Date();
-		const durationEpoch = Math.floor((nowEpoch - startEpoch) / 1000);
+		const duration = Math.floor(Date.now() / 1000) + rows[0].duration;
 
 		const updateOneQuery =`UPDATE time_entries SET duration=$1 WHERE id=$2 returning *`;
-		const result  = await pool.query(updateOneQuery, [durationEpoch, request.params.time_entry_id]);
+		const result  = await pool.query(updateOneQuery, [duration, request.params.time_entry_id]);
 
 		return {data: result.rows[0]}
+	});
+
+
+	const timeEntryCurrentSchema = {
+		schema: {
+			response: successfulResponse
+		}
+	};
+	fastify.get('/current', timeEntryCurrentSchema, async () => {
+		const query = "SELECT * FROM time_entries WHERE duration < 0";
+		const { rows } = await pool.query(query);
+		return {data: rows[0]}
 	});
 };

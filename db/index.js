@@ -21,6 +21,7 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
     created_with VARCHAR(128),
     billable BOOLEAN,
     start TIMESTAMP,
+    at TIMESTAMP,
     duration INT,
     tags text[],
     description VARCHAR(128)
@@ -38,12 +39,14 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 			created_with: faker.random.word(),
 			billable: faker.random.boolean(),
 			start: faker.date.future(0.1),
-			duration: faker.random.number(100),
+			at: faker.date.future(0.1),
+			duration: faker.random.number({min: 100, max:1000 }),
 			description: faker.random.words(),
 		};
-		const query = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, start, duration, description, tags)
-									 VALUES($1,$2,$3,$4,$5, $6, $7, $8, $9) RETURNING *`;
-		const values = [data.pid, data.wid, data.tid, data.created_with, data.billable, data.start,
+
+		const query = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, start, at, duration, description, tags)
+									 VALUES($1,$2,$3,$4,$5, $6, $7, $8, $9, $10) RETURNING *`;
+		const values = [data.pid, data.wid, data.tid, data.created_with, data.billable, data.start, data.at,
 										data.duration, data.description, data.tags];
 		await pool.query(query, values);
 	}
