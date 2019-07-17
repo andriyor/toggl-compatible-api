@@ -80,10 +80,8 @@ module.exports = async function (fastify, opt) {
     }
   };
   fastify.get('/:time_entry_id', opts, async function (request, reply) {
-		console.log(request.params.time_entry_id);
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
-		console.log(rows[0]);
 		return {data: rows[0]}
   });
 
@@ -141,4 +139,31 @@ module.exports = async function (fastify, opt) {
 	});
 
 
+	const timeEntryStopSchema = {
+		schema: {
+			params: {
+				type: 'object',
+				properties: {
+					time_entry_id: {
+						type: 'string',
+						description: 'time entry id'
+					}
+				}
+			},
+			response: successfulResponse
+		}
+	};
+	fastify.post('/:time_entry_id/stop', timeEntryStopSchema, async function (request, reply) {
+		const query = 'SELECT * FROM time_entries WHERE id = $1';
+		const { rows } = await pool.query(query, [request.params.time_entry_id]);
+
+		const startEpoch = new Date(rows[0].start);
+		const nowEpoch = new Date();
+		const durationEpoch = Math.floor((nowEpoch - startEpoch) / 1000);
+
+		const updateOneQuery =`UPDATE time_entries SET duration=$1 WHERE id=$2 returning *`;
+		const result  = await pool.query(updateOneQuery, [durationEpoch, request.params.time_entry_id]);
+
+		return {data: result.rows[0]}
+	});
 };
