@@ -53,18 +53,15 @@ const successfulResponse = {
 			data: {
 				type: 'object',
 				properties: responseTimeEntries,
-				required: [
-					"id",
-					"duration",
-					"start",
-				]
+				required: ["id", "duration", "start"]
 			}
 		}
 	}
 };
 
-const {id, ...timeEntriesPost} = responseTimeEntries;
+const {id, at, ...timeEntriesPost} = responseTimeEntries;
 timeEntriesPost.created_with = {type: "string"};
+const {duration, start, ...timeEntriesStart} = timeEntriesPost;
 
 
 module.exports = async function (fastify, opt) {
@@ -83,8 +80,10 @@ module.exports = async function (fastify, opt) {
     }
   };
   fastify.get('/:time_entry_id', opts, async function (request, reply) {
+		console.log(request.params.time_entry_id);
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
+		console.log(rows[0]);
 		return {data: rows[0]}
   });
 
@@ -97,10 +96,7 @@ module.exports = async function (fastify, opt) {
 					time_entry: {
 						type: 'object',
 						properties: timeEntriesPost,
-						required: [
-							"duration",
-							"start",
-						]
+						required: ["duration", "start"]
 					}
 				}
 			},
@@ -116,4 +112,33 @@ module.exports = async function (fastify, opt) {
 		const { rows } =  await pool.query(query, values);
 		return {data: rows[0]}
 	});
+
+
+
+	const timeEntriesStartSchema = {
+		schema: {
+			body: {
+				type: 'object',
+				properties: {
+					time_entry: {
+						type: 'object',
+						properties: timeEntriesStart
+					}
+				}
+			},
+			response: successfulResponse
+		}
+	};
+	fastify.post('/start', timeEntriesStartSchema, async function (request, reply) {
+		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start)
+									 VALUES($1,$2,$3,$4,$5, $6, $7) RETURNING *`;
+		const values = [request.body.time_entry.pid, request.body.time_entry.wid, request.body.time_entry.created_with,
+										request.body.time_entry.billable, request.body.time_entry.description,
+										request.body.time_entry.tags, new Date()];
+		const { rows } =  await pool.query(query, values);
+		const  timeEntry = rows[0].duration = - Math.floor(new Date(rows[0].start) / 1000);
+		return {data: timeEntry}
+	});
+
+
 };
