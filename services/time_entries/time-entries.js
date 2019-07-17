@@ -31,6 +31,10 @@ const responseTimeEntries = {
 		type: "string",
 		format: "date-time"
 	},
+	stop: {
+		type: "string",
+		format: "date-time"
+	},
 	duration: {
 		type: "integer"
 	},
@@ -162,10 +166,15 @@ module.exports = async (fastify) => {
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
 
-		const duration = Math.floor(Date.now() / 1000) + rows[0].duration;
+		if (rows[0].stop) {
+			return "Time entry already stopped";
+		}
 
-		const updateOneQuery =`UPDATE time_entries SET duration=$1 WHERE id=$2 returning *`;
-		const result  = await pool.query(updateOneQuery, [duration, request.params.time_entry_id]);
+		const nowDate = new Date();
+		const duration = Math.floor(nowDate / 1000) + rows[0].duration;
+
+		const updateOneQuery =`UPDATE time_entries SET duration=$1, stop=$2 WHERE id=$3 returning *`;
+		const result  = await pool.query(updateOneQuery, [duration, nowDate, request.params.time_entry_id]);
 
 		return {data: result.rows[0]}
 	});
