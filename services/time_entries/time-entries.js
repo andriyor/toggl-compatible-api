@@ -71,7 +71,23 @@ timeEntriesPost.created_with = {type: "string"};
 const {duration, start, ...timeEntriesStart} = timeEntriesPost;
 
 
+async function getRunningTimeEntries() {
+	const runningTimeEntryQuery = "SELECT * FROM time_entries WHERE stop IS NULL";
+	const { rows } = await pool.query(runningTimeEntryQuery);
+	return rows;
+}
+
+async function stopTimeEntry(duration, timeEntryId) {
+	const nowDate = new Date();
+	const newDuration = Math.floor(nowDate / 1000) + duration;
+
+	const updateOneQuery =`UPDATE time_entries SET duration=$1, stop=$2 WHERE id=$3 returning *`;
+	return await pool.query(updateOneQuery, [newDuration, nowDate, timeEntryId]);
+}
+
+
 module.exports = async (fastify) => {
+
   const opts = {
     schema: {
 			params: {
@@ -119,7 +135,6 @@ module.exports = async (fastify) => {
 	});
 
 
-
 	const timeEntriesStartSchema = {
 		schema: {
 			body: {
@@ -136,6 +151,11 @@ module.exports = async (fastify) => {
 		}
 	};
 	fastify.post('/start', timeEntriesStartSchema, async (request) => {
+		const runningTimeEntries = await getRunningTimeEntries();
+		if (runningTimeEntries.length) {
+			await stopTimeEntry(runningTimeEntries[0].duration, runningTimeEntries[0].id);
+		}
+
 		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start, duration)
 									 VALUES($1,$2,$3,$4,$5, $6, $7, $8) RETURNING *`;
 		const nowDate = new Date();
@@ -165,17 +185,10 @@ module.exports = async (fastify) => {
 	fastify.put('/:time_entry_id/stop', timeEntryStopSchema, async (request) => {
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
 		const { rows } = await pool.query(query, [request.params.time_entry_id]);
-
 		if (rows[0].stop) {
 			return "Time entry already stopped";
 		}
-
-		const nowDate = new Date();
-		const duration = Math.floor(nowDate / 1000) + rows[0].duration;
-
-		const updateOneQuery =`UPDATE time_entries SET duration=$1, stop=$2 WHERE id=$3 returning *`;
-		const result  = await pool.query(updateOneQuery, [duration, nowDate, request.params.time_entry_id]);
-
+		const result = await stopTimeEntry(rows[0].duration, request.params.time_entry_id);
 		return {data: result.rows[0]}
 	});
 
@@ -186,8 +199,7 @@ module.exports = async (fastify) => {
 		}
 	};
 	fastify.get('/current', timeEntryCurrentSchema, async () => {
-		const query = "SELECT * FROM time_entries WHERE duration < 0";
-		const { rows } = await pool.query(query);
-		return {data: rows[0]}
+		const runningTimeEntries = await getRunningTimeEntries();
+		return {data: runningTimeEntries[0]}
 	});
 };
