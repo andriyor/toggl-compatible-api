@@ -227,4 +227,28 @@ module.exports = async (fastify) => {
 		await pool.query(query, [request.params.time_entry_id]);
 		return 'OK'
 	});
+
+
+	const timeEntriesRangeSchema = {
+		schema: {
+			querystring: {
+				start_date: { type: 'string' },
+				end_date: { type: 'string' }
+			},
+			response : {
+				200: {
+					type: 'array',
+					items: {
+						type: "object",
+						properties: responseTimeEntries
+					}
+				}
+			}
+		}
+	};
+	fastify.get('/', timeEntriesRangeSchema, async (request) => {
+		const query = 'SELECT * FROM time_entries WHERE stop BETWEEN $1 AND $2';
+		const {rows} = await pool.query(query, [request.query.start_date, request.query.end_date]);
+		return rows
+	});
 };
