@@ -215,4 +215,16 @@ module.exports = async (fastify) => {
 		const {rows} = await pool.query(updateOneQuery, [...values, request.params.time_entry_id]);
 		return {data: rows[0]}
 	});
+
+
+	const timeEntryDeleteSchema = {
+		schema: {
+			params: timeEntryIdParam,
+		}
+	};
+	fastify.delete('/:time_entry_id', timeEntryDeleteSchema, async (request) => {
+		const query = 'DELETE FROM time_entries WHERE id = $1;';
+		await pool.query(query, [request.params.time_entry_id]);
+		return 'OK'
+	});
 };
