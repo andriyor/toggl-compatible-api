@@ -7,14 +7,17 @@ module.exports = function (fastify, opts, next) {
 	fastify.register(require('fastify-swagger'), {
 		swagger: {
 			info: {
-				title: 'Test swagger',
-				description: 'testing the fastify swagger api',
+				title: 'Toggl compatible API Documentation',
+				description: 'Toggl compatible API Documentation',
 				version: '0.1.0'
 			},
 			host: 'localhost:3000',
 			schemes: ['http'],
 			consumes: ['application/json'],
-			produces: ['application/json']
+			produces: ['application/json'],
+			tags: [
+				{ name: 'time-entries', description: 'Time Entries' },
+			],
 		},
 		exposeRoute: true
 	});

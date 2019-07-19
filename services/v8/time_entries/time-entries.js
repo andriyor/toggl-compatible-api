@@ -90,7 +90,8 @@ async function stopTimeEntry(duration, timeEntryId) {
 
 function getValues(time_entry) {
 	return [time_entry.pid, time_entry.wid, time_entry.created_with, time_entry.billable, time_entry.duronly,
-					time_entry.start, time_entry.stop, new Date(), time_entry.duration, time_entry.description, time_entry.tags];
+					time_entry.start, time_entry.stop, new Date(), time_entry.duration,
+					time_entry.description, time_entry.tags];
 }
 
 
@@ -108,6 +109,8 @@ module.exports = async (fastify) => {
 
   const timeEntryByIDSchema = {
     schema: {
+			tags: ['time-entries'],
+    	summary: 'Get time entry details',
 			params: timeEntryIdParam,
       response: successfulResponse
     }
@@ -121,6 +124,8 @@ module.exports = async (fastify) => {
 
 	const timeEntriesPostPutSchema = {
 		schema: {
+			tags: ['time-entries'],
+			summary: 'Create a time entry',
 			body: {
 				type: 'object',
 				properties: {
@@ -146,6 +151,9 @@ module.exports = async (fastify) => {
 
 	const timeEntriesStartSchema = {
 		schema: {
+			tags: ['time-entries'],
+			summary: 'Start a time entry',
+			description: 'Already running time entry must stop',
 			body: {
 				type: 'object',
 				properties: {
@@ -169,7 +177,8 @@ module.exports = async (fastify) => {
 									 VALUES($1,$2,$3,$4,$5, $6, $7, $8) RETURNING *`;
 		const nowDate = new Date();
 		const duration = - Math.floor(nowDate / 1000);
-		const values = [request.body.time_entry.pid, request.body.time_entry.wid, request.body.time_entry.created_with,
+		const values = [request.body.time_entry.pid, request.body.time_entry.wid,
+										request.body.time_entry.created_with,
 										request.body.time_entry.billable, request.body.time_entry.description,
 										request.body.time_entry.tags, nowDate, duration];
 		const { rows } =  await pool.query(query, values);
@@ -179,6 +188,8 @@ module.exports = async (fastify) => {
 
 	const timeEntryStopSchema = {
 		schema: {
+			tags: ['time-entries'],
+			summary: 'Stop a time entry',
 			params: timeEntryIdParam,
 			response: successfulResponse
 		}
@@ -196,6 +207,8 @@ module.exports = async (fastify) => {
 
 	const timeEntryCurrentSchema = {
 		schema: {
+			tags: ['time-entries'],
+			summary: 'Get running time entry',
 			response: successfulResponse
 		}
 	};
@@ -205,7 +218,14 @@ module.exports = async (fastify) => {
 	});
 
 
-	const updateTimeEntrySchema = {schema: {...timeEntriesPostPutSchema.schema, params: timeEntryIdParam}};
+	const updateTimeEntrySchema = {
+		schema: {
+			tags: ['time-entries'],
+			summary: 'Update a time entry',
+			...timeEntriesPostPutSchema.schema,
+			params: timeEntryIdParam
+		}
+	};
 	fastify.put('/:time_entry_id', updateTimeEntrySchema, async (request) => {
 		const updateOneQuery =`UPDATE time_entries SET pid=$1, wid=$2, created_with=$3, billable=$4,
                                                    duronly=$5, start=$6, stop=$7, at=$8, duration=$9, 
@@ -219,6 +239,8 @@ module.exports = async (fastify) => {
 
 	const timeEntryDeleteSchema = {
 		schema: {
+			tags: ['time-entries'],
+			summary: 'Delete a time entry',
 			params: timeEntryIdParam,
 		}
 	};
@@ -231,6 +253,16 @@ module.exports = async (fastify) => {
 
 	const timeEntriesRangeSchema = {
 		schema: {
+			tags: ['time-entries'],
+			summary: 'Get time entries started in a specific time range',
+			description: 'With start_date and end_date parameters you can specify the date range of the time ' +
+				'entries returned. If start_date and end_date are not specified, time entries started during the ' +
+				'last 9 days are returned. The limit of returned time entries is 1000. So only the first 1000 ' +
+				'found time entries are returned. To get all time entries for a specific time span, you should ' +
+				'consider using the detailed report request, which returns paginated results, but enables you' +
+				' to get all the asked time entries with multiple requests.\n' +
+				'\n' +
+				'start_date and end_date must be ISO 8601 date and time strings.',
 			querystring: {
 				start_date: { type: 'string' },
 				end_date: { type: 'string' }
