@@ -33,9 +33,15 @@ module.exports = function (fastify, opts, next) {
   // define your routes in one of these
 	opts.prefix = '/api/v8/';
   fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'services'),
+    dir: path.join(__dirname, 'services/v8'),
     options: Object.assign({}, opts)
   });
+
+	opts.prefix = '/api/v9/';
+	fastify.register(AutoLoad, {
+		dir: path.join(__dirname, 'services/v9'),
+		options: Object.assign({}, opts)
+	});
 
   // Make sure to call next when done
   next()
