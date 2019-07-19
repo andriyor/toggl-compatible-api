@@ -90,19 +90,19 @@ async function stopTimeEntry(duration, timeEntryId) {
 	return await pool.query(updateOneQuery, [newDuration, nowDate, timeEntryId]);
 }
 
-function getValues(time_entry) {
+function getValues(time_entry, oldTimeEntry) {
 	return [
-		time_entry.pid,
-		time_entry.wid,
-		time_entry.created_with,
-		time_entry.billable,
-		time_entry.duronly,
-		time_entry.start,
-		time_entry.stop,
+		time_entry.pid || oldTimeEntry.pid,
+		time_entry.wid || oldTimeEntry.wid,
+		time_entry.created_with || oldTimeEntry.created_with,
+		time_entry.billable || oldTimeEntry.billable,
+		time_entry.duronly || oldTimeEntry.duronly,
+		time_entry.start || oldTimeEntry.start,
+		time_entry.stop || oldTimeEntry.stop,
 		new Date(),
-		time_entry.duration,
-		time_entry.description,
-		time_entry.tags
+		time_entry.duration || oldTimeEntry.duration,
+		time_entry.description || oldTimeEntry.description,
+		time_entry.tags || oldTimeEntry.tags
 	];
 }
 
@@ -152,7 +152,7 @@ module.exports = async fastify => {
 		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, duronly,
                                             start, stop, at, duration, description, tags)
                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`;
-		const values = getValues(request.body.time_entry);
+		const values = getValues(request.body.time_entry, {});
 		const { rows } = await pool.query(query, values);
 		return { data: rows[0] };
 	});
@@ -238,12 +238,14 @@ module.exports = async fastify => {
 	const updateTimeEntrySchema = {
 		schema: {
 			tags: ["time-entries"],
-			summary: "Update a time entry",
+			params: timeEntryIdParam,
 			...timeEntriesPostPutSchema.schema,
-			params: timeEntryIdParam
+			summary: "Update a time entry"
 		}
 	};
 	fastify.put("/:time_entry_id", updateTimeEntrySchema, async request => {
+		const findOneTimeEntryQuery = "SELECT * FROM time_entries WHERE id = $1";
+		const result = await pool.query(findOneTimeEntryQuery, [request.params.time_entry_id]);
 		const updateOneQuery = `UPDATE time_entries
                             SET pid=$1,
                                 wid=$2,
@@ -257,7 +259,7 @@ module.exports = async fastify => {
                                 description=$10,
                                 tags=$11
                             WHERE id = $12 returning *`;
-		const values = getValues(request.body.time_entry);
+		const values = getValues(request.body.time_entry, result.rows[0]);
 		const { rows } = await pool.query(updateOneQuery, [
 			...values,
 			request.params.time_entry_id
