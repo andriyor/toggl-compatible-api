@@ -130,7 +130,7 @@ module.exports = async fastify => {
 
 	const updateProjectSchema = {
 		schema: {
-			tags: ["time-entries"],
+			tags: ["projects"],
 			params: projectIdParam,
 			...projectPostPutSchema.schema,
 			summary: "Update project data"
@@ -162,4 +162,18 @@ module.exports = async fastify => {
 		]);
 		return { data: rows[0] };
 	});
+
+	const projectDeleteSchema = {
+		schema: {
+			tags: ["projects"],
+			summary: "Delete a time entry",
+			params: projectIdParam
+		}
+	};
+	fastify.delete("/:project_id", projectDeleteSchema, async request => {
+		const query = "DELETE FROM projects WHERE id = $1;";
+		await pool.query(query, [request.params.project_id]);
+		return "OK";
+	});
+
 };
