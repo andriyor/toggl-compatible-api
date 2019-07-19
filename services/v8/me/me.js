@@ -1,5 +1,5 @@
 const { Pool } = require("pg");
-const auth = require('basic-auth');
+const auth = require("basic-auth");
 
 const config = {
 	user: "postgres", //this is the db user credential
@@ -93,7 +93,6 @@ const successfulResponse = {
 };
 
 module.exports = async fastify => {
-
 	const userSchema = {
 		schema: {
 			tags: ["user"],
@@ -106,12 +105,8 @@ module.exports = async fastify => {
 		const query = "SELECT * FROM users WHERE fullname = $1";
 		const { rows } = await pool.query(query, [user.name]);
 		if (!rows.length || rows.password !== user.password) {
-			reply
-				.code(403)
-				.header('Content-Type', 'application/json; charset=utf-8')
-				.send()
-		}
-		else {
+			reply.code(403).send();
+		} else {
 			return { data: rows[0] };
 		}
 	});

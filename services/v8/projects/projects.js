@@ -119,7 +119,15 @@ module.exports = async fastify => {
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", projectPostPutSchema, async request => {
+	fastify.post("/", projectPostPutSchema, async (request, reply) => {
+		const findOneProjectQuery = "SELECT * FROM projects WHERE name = $1";
+		const result = await pool.query(findOneProjectQuery, [
+			request.body.project.name
+		]);
+		if (result.rows.length) {
+			reply.code(400).send("Name has already been taken");
+		}
+
 		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
                                                      billable, auto_estimates, estimated_hours, at, color, rate)
                                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
