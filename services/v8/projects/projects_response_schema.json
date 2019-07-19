@@ -48,8 +48,7 @@
           "type": "integer"
         },
         "color": {
-          "type": "string",
-          "format": "integer"
+          "type": "string"
         }
       },
       "required": [

@@ -45,7 +45,7 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
                                auto_estimates  BOOLEAN,
                                estimated_hours INT,
                                at              TIMESTAMP,
-                               color           INTEGER,
+                               color           VARCHAR(128),
                                rate            FLOAT
                            )`;
 
@@ -99,7 +99,7 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
 			auto_estimates: faker.random.boolean(),
 			estimated_hours: faker.random.number(100),
 			at: faker.date.future(0.1),
-			color: faker.random.number(100),
+			color: faker.random.number(100).toString(),
 			rate: faker.random.float()
 		};
 

@@ -42,7 +42,6 @@ const responseProject = {
 	},
 	color: {
 		type: "string",
-		format: "integer"
 	}
 };
 
@@ -80,9 +79,49 @@ module.exports = async fastify => {
 	};
 	fastify.get("/:project_id", timeEntryByIDSchema, async request => {
 		const query = "SELECT * FROM projects WHERE id = $1";
-		console.log(request.params.project_id);
 		const { rows } = await pool.query(query, [request.params.project_id]);
-		console.log(rows);
+		return { data: rows[0] };
+	});
+
+
+	const { id, at, ...projectPost } = responseProject;
+	const projectPostPutSchema = {
+		schema: {
+			tags: ["projects"],
+			summary: "Create a time entry",
+			body: {
+				type: "object",
+				properties: {
+					project: {
+						type: "object",
+						properties: projectPost,
+						required: ["name", "wid"]
+					}
+				}
+			},
+			response: successfulResponse
+		}
+	};
+	fastify.post("/", projectPostPutSchema, async request => {
+		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
+                                                     billable, auto_estimates, estimated_hours, at, color, rate)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
+		const projectValues = [
+			request.body.project.name,
+			request.body.project.wid,
+			request.body.project.cid,
+			request.body.project.active,
+			request.body.project.is_private,
+			request.body.project.template,
+			request.body.project.template_id,
+			request.body.project.billable,
+			request.body.project.auto_estimates,
+			request.body.project.estimated_hours,
+			new Date(),
+			request.body.project.color,
+			request.body.project.rate
+		];
+		const { rows } = await pool.query(createProjectQuery, projectValues);
 		return { data: rows[0] };
 	});
 };
