@@ -1,4 +1,4 @@
-const { Pool } = require("pg");
+const {Pool} = require("pg");
 const faker = require("faker");
 
 const config = {
@@ -30,11 +30,11 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
                               description  VARCHAR(128)
                           )`;
 
-const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
+const projectsTable = `CREATE TABLE IF NOT EXISTS
                                projects
                            (
                                id              SERIAL PRIMARY KEY,
-                               name            VARCHAR(128),
+                               name            VARCHAR(128) UNIQUE,
                                wid             INT,
                                cid             INT,
                                active          BOOLEAN,
@@ -55,8 +55,9 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
                         id                        SERIAL PRIMARY KEY,
                         api_token                 VARCHAR(128),
                         default_wid               INT,
-                        email                     VARCHAR(128),
+                        email                     VARCHAR(128) UNIQUE,
                         fullname                  VARCHAR(128),
+                        password                  VARCHAR(128),
                         jquery_timeofday_format   VARCHAR(128),
                         jquery_date_format        VARCHAR(128),
                         timeofday_format          VARCHAR(128),
@@ -76,7 +77,7 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
 
 (async () => {
 	await pool.query(timeEntriesTable);
-	await pool.query(timeProjectsTable);
+	await pool.query(projectsTable);
 	await pool.query(usersTable);
 
 	for (let i = 0; i < 10; i++) {
@@ -91,7 +92,7 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
 			start: faker.date.future(0.1),
 			stop: faker.date.future(0.1),
 			at: faker.date.future(0.1),
-			duration: faker.random.number({ min: 100, max: 1000 }),
+			duration: faker.random.number({min: 100, max: 1000}),
 			description: faker.random.words()
 		};
 
@@ -151,10 +152,11 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
 		await pool.query(createProjectQuery, projectValues);
 
 		const userData = {
-			api_token: faker.random.word(20),
+			api_token: faker.random.word(20, 20),
 			default_wid: faker.random.number(100),
 			email: faker.internet.email(),
 			fullname: faker.internet.userName(),
+			password: faker.internet.password(),
 			jquery_timeofday_format: "h:i A",
 			jquery_date_format: "d.m.Y",
 			timeofday_format: "h:mm A",
@@ -171,18 +173,19 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
 			timeline_enabled: faker.random.boolean(),
 			timeline_experiment: faker.random.boolean()
 		};
-		const createUserQuery = `INSERT INTO users(api_token, default_wid, email, fullname, jquery_timeofday_format,
-                                               jquery_date_format, timeofday_format, date_format,
-                                               store_start_and_stop_time, beginning_of_week, language,
+		const createUserQuery = `INSERT INTO users(api_token, default_wid, email, fullname, password,
+                                               jquery_timeofday_format, jquery_date_format, timeofday_format,
+                                               date_format, store_start_and_stop_time, beginning_of_week, language,
                                                image_url, sidebar_piechart, at, retention, record_timeline,
                                                render_timeline, timeline_enabled, timeline_experiment)
                                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-                                         $18, $19) RETURNING *`;
+                                         $18, $19, $20) RETURNING *`;
 		const userValues = [
 			userData.api_token,
 			userData.default_wid,
 			userData.email,
 			userData.fullname,
+			userData.password,
 			userData.jquery_timeofday_format,
 			userData.jquery_date_format,
 			userData.timeofday_format,

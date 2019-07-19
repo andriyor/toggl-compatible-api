@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "since": {
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "required": [
+        "data",
+        "since"
+      ],
+      "title": "Welcome"
+    },
+    "Data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "api_token": {
+          "type": "string"
+        },
+        "default_wid": {
+          "type": "integer"
+        },
+        "email": {
+          "type": "string"
+        },
+        "fullname": {
+          "type": "string"
+        },
+        "jquery_timeofday_format": {
+          "type": "string"
+        },
+        "jquery_date_format": {
+          "type": "string"
+        },
+        "timeofday_format": {
+          "type": "string"
+        },
+        "date_format": {
+          "type": "string"
+        },
+        "store_start_and_stop_time": {
+          "type": "boolean"
+        },
+        "beginning_of_week": {
+          "type": "integer"
+        },
+        "language": {
+          "type": "string"
+        },
+        "image_url": {
+          "type": "string",
+          "format": "uri",
+          "qt-uri-protocols": [
+            "https"
+          ],
+          "qt-uri-extensions": [
+            ".png"
+          ]
+        },
+        "sidebar_piechart": {
+          "type": "boolean"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "retention": {
+          "type": "integer"
+        },
+        "record_timeline": {
+          "type": "boolean"
+        },
+        "render_timeline": {
+          "type": "boolean"
+        },
+        "timeline_enabled": {
+          "type": "boolean"
+        },
+        "timeline_experiment": {
+          "type": "boolean"
+        },
+        "new_blog_post": {
+          "$ref": "#/definitions/Invitation"
+        },
+        "invitation": {
+          "$ref": "#/definitions/Invitation"
+        }
+      },
+      "required": [
+        "api_token",
+        "at",
+        "beginning_of_week",
+        "date_format",
+        "default_wid",
+        "email",
+        "fullname",
+        "id",
+        "image_url",
+        "invitation",
+        "jquery_date_format",
+        "jquery_timeofday_format",
+        "language",
+        "new_blog_post",
+        "record_timeline",
+        "render_timeline",
+        "retention",
+        "sidebar_piechart",
+        "store_start_and_stop_time",
+        "timeline_enabled",
+        "timeline_experiment",
+        "timeofday_format"
+      ],
+      "title": "Data"
+    },
+    "Invitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "title": "Invitation"
+    }
+  }
+}

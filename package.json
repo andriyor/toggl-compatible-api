@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "basic-auth": "^2.0.1",
     "faker": "github:Marak/faker.js",
     "fastify": "^2.0.0",
     "fastify-autoload": "^1.0.0",

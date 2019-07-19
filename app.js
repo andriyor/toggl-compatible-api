@@ -18,7 +18,18 @@ module.exports = function (fastify, opts, next) {
 			tags: [
 				{ name: 'time-entries', description: 'Time Entries' },
 				{ name: 'projects', description: 'Projects' },
+				{ name: 'user', description: 'Users' },
 			],
+			"securityDefinitions": {
+				"basicAuth": {
+					"type": "basic"
+				}
+			},
+			"security": [
+				{
+					"basicAuth": []
+				}
+			]
 		},
 		exposeRoute: true
 	});
