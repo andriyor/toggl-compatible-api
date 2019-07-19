@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+const {Pool} = require('pg');
 
 const config = {
 	user: 'postgres', //this is the db user credential
@@ -76,7 +76,7 @@ const {duration, start, stop, ...timeEntriesStart} = timeEntriesPost;
 
 async function getRunningTimeEntries() {
 	const runningTimeEntryQuery = "SELECT * FROM time_entries WHERE stop IS NULL";
-	const { rows } = await pool.query(runningTimeEntryQuery);
+	const {rows} = await pool.query(runningTimeEntryQuery);
 	return rows;
 }
 
@@ -84,14 +84,17 @@ async function stopTimeEntry(duration, timeEntryId) {
 	const nowDate = new Date();
 	const newDuration = Math.floor(nowDate / 1000) + duration;
 
-	const updateOneQuery =`UPDATE time_entries SET duration=$1, stop=$2 WHERE id=$3 returning *`;
+	const updateOneQuery = `UPDATE time_entries
+                          SET duration=$1,
+                              stop=$2
+                          WHERE id = $3 returning *`;
 	return await pool.query(updateOneQuery, [newDuration, nowDate, timeEntryId]);
 }
 
 function getValues(time_entry) {
 	return [time_entry.pid, time_entry.wid, time_entry.created_with, time_entry.billable, time_entry.duronly,
-					time_entry.start, time_entry.stop, new Date(), time_entry.duration,
-					time_entry.description, time_entry.tags];
+		time_entry.start, time_entry.stop, new Date(), time_entry.duration,
+		time_entry.description, time_entry.tags];
 }
 
 
@@ -107,19 +110,19 @@ module.exports = async (fastify) => {
 		}
 	};
 
-  const timeEntryByIDSchema = {
-    schema: {
+	const timeEntryByIDSchema = {
+		schema: {
 			tags: ['time-entries'],
-    	summary: 'Get time entry details',
+			summary: 'Get time entry details',
 			params: timeEntryIdParam,
-      response: successfulResponse
-    }
-  };
-  fastify.get('/:time_entry_id', timeEntryByIDSchema, async (request) => {
+			response: successfulResponse
+		}
+	};
+	fastify.get('/:time_entry_id', timeEntryByIDSchema, async (request) => {
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
-		const { rows } = await pool.query(query, [request.params.time_entry_id]);
+		const {rows} = await pool.query(query, [request.params.time_entry_id]);
 		return {data: rows[0]}
-  });
+	});
 
 
 	const timeEntriesPostPutSchema = {
@@ -141,10 +144,10 @@ module.exports = async (fastify) => {
 	};
 	fastify.post('/', timeEntriesPostPutSchema, async (request) => {
 		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, duronly,
-                         										start, stop, at, duration, description, tags)
-									 VALUES($1,$2,$3,$4,$5, $6, $7, $8, $9, $10, $11) RETURNING *`;
+                                            start, stop, at, duration, description, tags)
+                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`;
 		const values = getValues(request.body.time_entry);
-		const { rows } =  await pool.query(query, values);
+		const {rows} = await pool.query(query, values);
 		return {data: rows[0]}
 	});
 
@@ -174,14 +177,14 @@ module.exports = async (fastify) => {
 		}
 
 		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start, duration)
-									 VALUES($1,$2,$3,$4,$5, $6, $7, $8) RETURNING *`;
+                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
 		const nowDate = new Date();
-		const duration = - Math.floor(nowDate / 1000);
+		const duration = -Math.floor(nowDate / 1000);
 		const values = [request.body.time_entry.pid, request.body.time_entry.wid,
-										request.body.time_entry.created_with,
-										request.body.time_entry.billable, request.body.time_entry.description,
-										request.body.time_entry.tags, nowDate, duration];
-		const { rows } =  await pool.query(query, values);
+			request.body.time_entry.created_with,
+			request.body.time_entry.billable, request.body.time_entry.description,
+			request.body.time_entry.tags, nowDate, duration];
+		const {rows} = await pool.query(query, values);
 		return {data: rows[0]}
 	});
 
@@ -196,7 +199,7 @@ module.exports = async (fastify) => {
 	};
 	fastify.put('/:time_entry_id/stop', timeEntryStopSchema, async (request) => {
 		const query = 'SELECT * FROM time_entries WHERE id = $1';
-		const { rows } = await pool.query(query, [request.params.time_entry_id]);
+		const {rows} = await pool.query(query, [request.params.time_entry_id]);
 		if (rows[0].stop) {
 			return "Time entry already stopped";
 		}
@@ -227,10 +230,19 @@ module.exports = async (fastify) => {
 		}
 	};
 	fastify.put('/:time_entry_id', updateTimeEntrySchema, async (request) => {
-		const updateOneQuery =`UPDATE time_entries SET pid=$1, wid=$2, created_with=$3, billable=$4,
-                                                   duronly=$5, start=$6, stop=$7, at=$8, duration=$9, 
-                        												   description=$10, tags=$11 
-																								WHERE id=$12 returning *`;
+		const updateOneQuery = `UPDATE time_entries
+                            SET pid=$1,
+                                wid=$2,
+                                created_with=$3,
+                                billable=$4,
+                                duronly=$5,
+                                start=$6,
+                                stop=$7,
+                                at=$8,
+                                duration=$9,
+                                description=$10,
+                                tags=$11
+                            WHERE id = $12 returning *`;
 		const values = getValues(request.body.time_entry);
 		const {rows} = await pool.query(updateOneQuery, [...values, request.params.time_entry_id]);
 		return {data: rows[0]}
@@ -264,10 +276,10 @@ module.exports = async (fastify) => {
 				'\n' +
 				'start_date and end_date must be ISO 8601 date and time strings.',
 			querystring: {
-				start_date: { type: 'string' },
-				end_date: { type: 'string' }
+				start_date: {type: 'string'},
+				end_date: {type: 'string'}
 			},
-			response : {
+			response: {
 				200: {
 					type: 'array',
 					items: {

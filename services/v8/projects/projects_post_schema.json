@@ -1,0 +1,48 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/ProjectsPostSchema",
+    "definitions": {
+        "ProjectsPostSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "project": {
+                    "$ref": "#/definitions/Project"
+                }
+            },
+            "required": [
+                "project"
+            ],
+            "title": "ProjectsPostSchema"
+        },
+        "Project": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "wid": {
+                    "type": "integer"
+                },
+                "template_id": {
+                    "type": "integer"
+                },
+                "is_private": {
+                    "type": "boolean"
+                },
+                "cid": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "cid",
+                "is_private",
+                "name",
+                "template_id",
+                "wid"
+            ],
+            "title": "Project"
+        }
+    }
+}

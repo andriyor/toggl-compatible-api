@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Data"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "Welcome"
+    },
+    "Data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "wid": {
+          "type": "integer"
+        },
+        "cid": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "billable": {
+          "type": "boolean"
+        },
+        "is_private": {
+          "type": "boolean"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "template_id": {
+          "type": "integer"
+        },
+        "color": {
+          "type": "string",
+          "format": "integer"
+        }
+      },
+      "required": [
+        "active",
+        "at",
+        "billable",
+        "cid",
+        "color",
+        "id",
+        "is_private",
+        "name",
+        "template_id",
+        "wid"
+      ],
+      "title": "Data"
+    }
+  }
+}

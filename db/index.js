@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+const {Pool} = require('pg');
 const faker = require('faker');
 
 const config = {
@@ -13,39 +13,40 @@ const config = {
 const pool = new Pool(config);
 
 const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
-	time_entries(
-    id SERIAL PRIMARY KEY,
-    pid INT,
-    wid INT,
-    tid INT,
-    created_with VARCHAR(128),
-    billable BOOLEAN,
-    duronly BOOLEAN,
-    start TIMESTAMP,
-    stop TIMESTAMP,
-    at TIMESTAMP,
-    duration INT,
-    tags text[],
-    description VARCHAR(128)
-  )`;
+                              time_entries
+                          (
+                              id           SERIAL PRIMARY KEY,
+                              pid          INT,
+                              wid          INT,
+                              tid          INT,
+                              created_with VARCHAR(128),
+                              billable     BOOLEAN,
+                              duronly      BOOLEAN,
+                              start        TIMESTAMP,
+                              stop         TIMESTAMP,
+                              at           TIMESTAMP,
+                              duration     INT,
+                              tags         text[],
+                              description  VARCHAR(128)
+                          )`;
 
 const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
-    projects(
-        id SERIAL PRIMARY KEY,
-				wid INT,
-				cid INT,
-        active BOOLEAN,
-        is_private BOOLEAN,
-        template BOOLEAN,
-        template_id INT,
-        billable BOOLEAN,
-        auto_estimates BOOLEAN,
-        estimated_hours INT,
-        at TIMESTAMP,
-        color INTEGER,
-        rate FLOAT
-		)`;
-
+                               projects
+                           (
+                               id              SERIAL PRIMARY KEY,
+                               wid             INT,
+                               cid             INT,
+                               active          BOOLEAN,
+                               is_private      BOOLEAN,
+                               template        BOOLEAN,
+                               template_id     INT,
+                               billable        BOOLEAN,
+                               auto_estimates  BOOLEAN,
+                               estimated_hours INT,
+                               at              TIMESTAMP,
+                               color           INTEGER,
+                               rate            FLOAT
+                           )`;
 
 
 (async () => {
@@ -63,17 +64,17 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
 			start: faker.date.future(0.1),
 			stop: faker.date.future(0.1),
 			at: faker.date.future(0.1),
-			duration: faker.random.number({min: 100, max:1000 }),
+			duration: faker.random.number({min: 100, max: 1000}),
 			description: faker.random.words(),
 		};
 
-		const CreateTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start, stop, at, duration, description, tags)
-									 VALUES($1,$2,$3,$4,$5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
+		const CreateTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start, stop,
+                                                           at, duration, description, tags)
+                                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
 		const timeEntryValues = [timeEntryData.pid, timeEntryData.wid, timeEntryData.tid, timeEntryData.created_with,
-										timeEntryData.billable, timeEntryData.duronly, timeEntryData.start, timeEntryData.stop,
-										timeEntryData.at, timeEntryData.duration, timeEntryData.description, timeEntryData.tags];
+			timeEntryData.billable, timeEntryData.duronly, timeEntryData.start, timeEntryData.stop,
+			timeEntryData.at, timeEntryData.duration, timeEntryData.description, timeEntryData.tags];
 		await pool.query(CreateTimeEntryQuery, timeEntryValues);
-
 
 
 		const projectData = {
@@ -91,9 +92,9 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
 			rate: faker.random.float()
 		};
 
-		const createProjectQuery = `INSERT INTO projects(wid, cid, active, is_private, template, template_id, 
-                     billable, auto_estimates, estimated_hours, at, color, rate)
-                     VALUES($1,$2,$3,$4,$5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
+		const createProjectQuery = `INSERT INTO projects(wid, cid, active, is_private, template, template_id,
+                                                     billable, auto_estimates, estimated_hours, at, color, rate)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
 		const projectValues = [projectData.wid, projectData.cid, projectData.active, projectData.is_private,
 			projectData.template, projectData.template_id, projectData.billable, projectData.auto_estimates,
 			projectData.estimated_hours, projectData.at, projectData.color, projectData.rate];
