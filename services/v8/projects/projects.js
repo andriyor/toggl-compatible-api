@@ -138,7 +138,9 @@ module.exports = async fastify => {
 	};
 	fastify.put("/:project_id", updateProjectSchema, async request => {
 		const findOneProjectQuery = "SELECT * FROM projects WHERE id = $1";
-		const result = await pool.query(findOneProjectQuery, [request.params.project_id]);
+		const result = await pool.query(findOneProjectQuery, [
+			request.params.project_id
+		]);
 
 		const updateOneProjectQuery = `UPDATE projects
                                    SET name=$1,
@@ -175,5 +177,4 @@ module.exports = async fastify => {
 		await pool.query(query, [request.params.project_id]);
 		return "OK";
 	});
-
 };
