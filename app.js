@@ -17,6 +17,7 @@ module.exports = function (fastify, opts, next) {
 			produces: ['application/json'],
 			tags: [
 				{ name: 'time-entries', description: 'Time Entries' },
+				{ name: 'projects', description: 'Projects' },
 			],
 		},
 		exposeRoute: true

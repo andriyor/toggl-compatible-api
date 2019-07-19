@@ -36,10 +36,7 @@
                 }
             },
             "required": [
-                "cid",
-                "is_private",
                 "name",
-                "template_id",
                 "wid"
             ],
             "title": "Project"

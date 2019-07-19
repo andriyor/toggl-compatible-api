@@ -1,13 +1,13 @@
-const {Pool} = require('pg');
-const faker = require('faker');
+const { Pool } = require("pg");
+const faker = require("faker");
 
 const config = {
-	user: 'postgres', //this is the db user credential
-	database: 'toggl_like',
-	password: '18091997',
+	user: "postgres", //this is the db user credential
+	database: "toggl_like",
+	password: "18091997",
 	port: 5432,
 	max: 10, // max number of clients in the pool
-	idleTimeoutMillis: 30000,
+	idleTimeoutMillis: 30000
 };
 
 const pool = new Pool(config);
@@ -34,6 +34,7 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
                                projects
                            (
                                id              SERIAL PRIMARY KEY,
+                               name            VARCHAR(128),
                                wid             INT,
                                cid             INT,
                                active          BOOLEAN,
@@ -47,7 +48,6 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
                                color           INTEGER,
                                rate            FLOAT
                            )`;
-
 
 (async () => {
 	await pool.query(timeEntriesTable);
@@ -64,20 +64,31 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
 			start: faker.date.future(0.1),
 			stop: faker.date.future(0.1),
 			at: faker.date.future(0.1),
-			duration: faker.random.number({min: 100, max: 1000}),
-			description: faker.random.words(),
+			duration: faker.random.number({ min: 100, max: 1000 }),
+			description: faker.random.words()
 		};
 
-		const CreateTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start, stop,
-                                                           at, duration, description, tags)
+		const CreateTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start,
+                                                           stop, at, duration, description, tags)
                                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
-		const timeEntryValues = [timeEntryData.pid, timeEntryData.wid, timeEntryData.tid, timeEntryData.created_with,
-			timeEntryData.billable, timeEntryData.duronly, timeEntryData.start, timeEntryData.stop,
-			timeEntryData.at, timeEntryData.duration, timeEntryData.description, timeEntryData.tags];
+		const timeEntryValues = [
+			timeEntryData.pid,
+			timeEntryData.wid,
+			timeEntryData.tid,
+			timeEntryData.created_with,
+			timeEntryData.billable,
+			timeEntryData.duronly,
+			timeEntryData.start,
+			timeEntryData.stop,
+			timeEntryData.at,
+			timeEntryData.duration,
+			timeEntryData.description,
+			timeEntryData.tags
+		];
 		await pool.query(CreateTimeEntryQuery, timeEntryValues);
 
-
 		const projectData = {
+			name: faker.random.words(),
 			wid: faker.random.number(100),
 			cid: faker.random.number(100),
 			active: faker.random.boolean(),
@@ -92,14 +103,25 @@ const timeProjectsTable = `CREATE TABLE IF NOT EXISTS
 			rate: faker.random.float()
 		};
 
-		const createProjectQuery = `INSERT INTO projects(wid, cid, active, is_private, template, template_id,
+		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
                                                      billable, auto_estimates, estimated_hours, at, color, rate)
-                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
-		const projectValues = [projectData.wid, projectData.cid, projectData.active, projectData.is_private,
-			projectData.template, projectData.template_id, projectData.billable, projectData.auto_estimates,
-			projectData.estimated_hours, projectData.at, projectData.color, projectData.rate];
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
+		const projectValues = [
+			projectData.name,
+			projectData.wid,
+			projectData.cid,
+			projectData.active,
+			projectData.is_private,
+			projectData.template,
+			projectData.template_id,
+			projectData.billable,
+			projectData.auto_estimates,
+			projectData.estimated_hours,
+			projectData.at,
+			projectData.color,
+			projectData.rate
+		];
 		await pool.query(createProjectQuery, projectValues);
-
 	}
 
 	await pool.end();

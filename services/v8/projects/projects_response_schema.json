@@ -53,15 +53,8 @@
         }
       },
       "required": [
-        "active",
-        "at",
-        "billable",
-        "cid",
-        "color",
         "id",
-        "is_private",
         "name",
-        "template_id",
         "wid"
       ],
       "title": "Data"
