@@ -19,6 +19,7 @@ module.exports = function (fastify, opts, next) {
 				{ name: 'time-entries', description: 'Time Entries' },
 				{ name: 'projects', description: 'Projects' },
 				{ name: 'user', description: 'Users' },
+				{ name: 'project-users', description: 'Project users' },
 			],
 			"securityDefinitions": {
 				"basicAuth": {
