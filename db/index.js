@@ -89,11 +89,20 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
                                at      TIMESTAMP
                            )`;
 
+const tagsTable = `CREATE TABLE IF NOT EXISTS
+                       tags
+                   (
+                       id   SERIAL PRIMARY KEY,
+                       name VARCHAR(128),
+                       wid  INT
+                   )`;
+
 (async () => {
 	await pool.query(timeEntriesTable);
 	await pool.query(projectsTable);
 	await pool.query(usersTable);
 	await pool.query(projectUsersTable);
+	await pool.query(tagsTable);
 
 	for (let i = 0; i < 10; i++) {
 		const timeEntryData = {
@@ -113,7 +122,7 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
 
 		const createTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start,
                                                            stop, at, duration, description, tags)
-                                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
+                                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
 		const timeEntryValues = [
 			timeEntryData.pid,
 			timeEntryData.wid,
@@ -148,7 +157,7 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
 
 		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
                                                      billable, auto_estimates, estimated_hours, at, color, rate)
-                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
 		const projectValues = [
 			projectData.name,
 			projectData.wid,
@@ -193,8 +202,8 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
                                                date_format, store_start_and_stop_time, beginning_of_week, language,
                                                image_url, sidebar_piechart, at, retention, record_timeline,
                                                render_timeline, timeline_enabled, timeline_experiment)
-                                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-                                         $18, $19, $20) RETURNING *`;
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+                                     $18, $19, $20) RETURNING *`;
 		const userValues = [
 			userData.api_token,
 			userData.default_wid,
@@ -218,6 +227,18 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
 			userData.timeline_experiment
 		];
 		await pool.query(createUserQuery, userValues);
+
+
+		const tagsData = {
+			name : faker.random.word(),
+			wid: faker.random.number(100),
+		};
+		const createTagsQuery = `INSERT INTO tags(name, wid) VALUES ($1, $2) RETURNING *`;
+		const tagsValues = [
+			tagsData.name,
+			tagsData.wid
+		];
+		await pool.query(createTagsQuery, tagsValues);
 	}
 
 	for (let i = 0; i < 10; i++) {
@@ -230,7 +251,7 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
 			at: faker.date.future(0.1)
 		};
 		const createProjectUsersQuery = `INSERT INTO project_users(pid, uid, wid, manager, rate, at)
-                                         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
+                                     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
 		const projectUsersValues = [
 			projectUsersData.pid,
 			projectUsersData.uid,
