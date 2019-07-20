@@ -45,6 +45,27 @@ const responseProject = {
 	}
 };
 
+const responseProjectUsers = {
+	id: {
+		type: "integer"
+	},
+	pid: {
+		type: "integer"
+	},
+	uid: {
+		type: "integer"
+	},
+	wid: {
+		type: "integer"
+	},
+	manager: {
+		type: "boolean"
+	},
+	rate: {
+		type: "integer"
+	}
+};
+
 const successfulResponse = {
 	200: {
 		type: "object",
@@ -87,7 +108,7 @@ module.exports = async fastify => {
 		}
 	};
 
-	const timeEntryByIDSchema = {
+	const projectByIdSchema = {
 		schema: {
 			tags: ["projects"],
 			summary: "Get project data",
@@ -95,7 +116,7 @@ module.exports = async fastify => {
 			response: successfulResponse
 		}
 	};
-	fastify.get("/:project_id", timeEntryByIDSchema, async request => {
+	fastify.get("/:project_id", projectByIdSchema, async request => {
 		const query = "SELECT * FROM projects WHERE id = $1";
 		const { rows } = await pool.query(query, [request.params.project_id]);
 		return { data: rows[0] };
@@ -176,7 +197,7 @@ module.exports = async fastify => {
 	const projectDeleteSchema = {
 		schema: {
 			tags: ["projects"],
-			summary: "Delete a time entry",
+			summary: "Delete a project",
 			params: projectIdParam
 		}
 	};
@@ -185,4 +206,27 @@ module.exports = async fastify => {
 		await pool.query(query, [request.params.project_id]);
 		return "OK";
 	});
+
+	const projectUsersByProjectIdSchema = {
+		schema: {
+			tags: ["projects"],
+			summary: "Get project users",
+			params: projectIdParam,
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseProjectUsers
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:project_id/project_users", projectUsersByProjectIdSchema, async request => {
+			const query = "SELECT * FROM project_users WHERE pid = $1";
+			const { rows } = await pool.query(query, [request.params.project_id]);
+			return rows;
+		}
+	);
 };
