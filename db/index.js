@@ -93,8 +93,8 @@ const tagsTable = `CREATE TABLE IF NOT EXISTS
                        tags
                    (
                        id   SERIAL PRIMARY KEY,
-                       name VARCHAR(128),
-                       wid  INT
+                       name VARCHAR(128) UNIQUE,
+                       wid  INT NOT NULL
                    )`;
 
 (async () => {

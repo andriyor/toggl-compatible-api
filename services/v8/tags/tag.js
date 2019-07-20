@@ -36,13 +36,10 @@ const successfulResponse = {
 	}
 };
 
-function getValues(tag, oldTag) {
-	return [tag.name || oldTag.name, tag.wid || oldTag.wid];
-}
-
 module.exports = async fastify => {
 	const { id, ...tagPost } = responseTag;
-	const projectUserPostPutSchema = {
+	const { wid, ...tagPut } = tagPost;
+	const tagPostPutSchema = {
 		schema: {
 			tags: ["tag"],
 			summary: "Create tag",
@@ -59,11 +56,53 @@ module.exports = async fastify => {
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", projectUserPostPutSchema, async request => {
+	fastify.post("/", tagPostPutSchema, async (request, reply) => {
 		const createTagQuery = `INSERT INTO tags(name, wid)
                             VALUES ($1, $2) RETURNING *`;
-		const projectUserValues = getValues(request.body.tag, {});
-		const { rows } = await pool.query(createTagQuery, projectUserValues);
+		const projectUserValues = [request.body.tag.name, request.body.tag.wid];
+		try {
+			const { rows } = await pool.query(createTagQuery, projectUserValues);
+			return { data: rows[0] };
+		} catch (e) {
+			if (e.code === '23505') {
+				reply.code(400).send(`Tag already exists: ${request.body.tag.name}`);
+			}
+		}
+	});
+
+	const tagIdParam = {
+		type: "object",
+		properties: {
+			tag_id: {
+				type: "string",
+				description: "tag id"
+			}
+		}
+	};
+	const updateTagSchema = {
+		schema: {
+			tags: ["tag"],
+			summary: "Update a tag",
+			params: tagIdParam,
+			body: {
+				type: "object",
+				properties: {
+					tag: {
+						type: "object",
+						properties: tagPut,
+						required: ["name"]
+					}
+				}
+			},
+			response: successfulResponse
+		}
+	};
+	fastify.put("/:tag_id", updateTagSchema, async request => {
+		const updateOneTagQuery = `UPDATE tags
+                               SET name=$1
+                               WHERE id = $2 RETURNING *`;
+		const tagValues = [request.body.tag.name, request.params.tag_id];
+		const { rows } = await pool.query(updateOneTagQuery, tagValues);
 		return { data: rows[0] };
 	});
 };
