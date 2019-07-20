@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "$ref": "#/definitions/Tag"
+        }
+      },
+      "required": [
+        "tag"
+      ],
+      "title": "Welcome"
+    },
+    "Tag": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "wid": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "wid"
+      ],
+      "title": "Tag"
+    }
+  }
+}
