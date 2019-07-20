@@ -105,4 +105,18 @@ module.exports = async fastify => {
 		const { rows } = await pool.query(updateOneTagQuery, tagValues);
 		return { data: rows[0] };
 	});
+
+
+	const projectDeleteSchema = {
+		schema: {
+			tags: ["tag"],
+			summary: "Delete a tag",
+			params: tagIdParam
+		}
+	};
+	fastify.delete("/:project_id", projectDeleteSchema, async request => {
+		const query = "DELETE FROM tags WHERE id = $1;";
+		await pool.query(query, [request.params.tag_id]);
+		return "OK";
+	});
 };
