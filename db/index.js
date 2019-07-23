@@ -99,19 +99,30 @@ const tagsTable = `CREATE TABLE IF NOT EXISTS
 
 const workspacesTable = `CREATE TABLE IF NOT EXISTS
                              workspaces
-                   (
-                       id   SERIAL PRIMARY KEY,
-                       name VARCHAR(128) UNIQUE,
-                       premium BOOLEAN,
-                       admin BOOLEAN,
-                       default_hourly_rate FLOAT,
-                       default_currency VARCHAR(128),
-                       only_admins_may_create_projects BOOLEAN,
-                       rounding INT,
-                       rounding_minutes INT,
-                       at      TIMESTAMP,
-                       logo_url VARCHAR(512)
-                   )`;
+                         (
+                             id                              SERIAL PRIMARY KEY,
+                             name                            VARCHAR(128) UNIQUE,
+                             premium                         BOOLEAN,
+                             admin                           BOOLEAN,
+                             default_hourly_rate             FLOAT,
+                             default_currency                VARCHAR(128),
+                             only_admins_may_create_projects BOOLEAN,
+                             rounding                        INT,
+                             rounding_minutes                INT,
+                             at                              TIMESTAMP,
+                             logo_url                        VARCHAR(512)
+                         )`;
+
+const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
+                                 workspace_users
+                             (
+                                 id         SERIAL PRIMARY KEY,
+                                 uid        INT NOT NULL,
+                                 FOREIGN KEY (uid) REFERENCES users (id),
+                                 admin      BOOLEAN,
+                                 active     BOOLEAN,
+                                 invite_url VARCHAR(512)
+                             )`;
 
 (async () => {
 	await pool.query(timeEntriesTable);
@@ -120,6 +131,7 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
 	await pool.query(projectUsersTable);
 	await pool.query(tagsTable);
 	await pool.query(workspacesTable);
+	await pool.query(workspaceUsersTable);
 
 	for (let i = 0; i < 10; i++) {
 		const timeEntryData = {
@@ -245,18 +257,14 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
 		];
 		await pool.query(createUserQuery, userValues);
 
-
 		const tagsData = {
-			name : faker.random.word(),
-			wid: faker.random.number(100),
+			name: faker.random.word(),
+			wid: faker.random.number(100)
 		};
-		const createTagsQuery = `INSERT INTO tags(name, wid) VALUES ($1, $2) RETURNING *`;
-		const tagsValues = [
-			tagsData.name,
-			tagsData.wid
-		];
+		const createTagsQuery = `INSERT INTO tags(name, wid)
+                             VALUES ($1, $2) RETURNING *`;
+		const tagsValues = [tagsData.name, tagsData.wid];
 		await pool.query(createTagsQuery, tagsValues);
-
 
 		const workspacesData = {
 			name: faker.random.word(),
@@ -270,8 +278,10 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
 			at: faker.date.future(0.1),
 			logo_url: faker.image.imageUrl()
 		};
-		const createWorkspacesQuery = `INSERT INTO workspaces(name, premium, admin, default_hourly_rate, default_currency, 
-                       only_admins_may_create_projects, rounding, rounding_minutes, at, logo_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
+		const createWorkspacesQuery = `INSERT INTO workspaces(name, premium, admin, default_hourly_rate, default_currency,
+                                                          only_admins_may_create_projects, rounding, rounding_minutes,
+                                                          at, logo_url)
+                                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const workspacesValues = [
 			workspacesData.name,
 			workspacesData.premium,
@@ -285,7 +295,6 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
 			workspacesData.logo_url
 		];
 		await pool.query(createWorkspacesQuery, workspacesValues);
-
 	}
 
 	for (let i = 0; i < 10; i++) {
@@ -308,6 +317,22 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
 			projectUsersData.at
 		];
 		await pool.query(createProjectUsersQuery, projectUsersValues);
+
+		const workspaceUsersData = {
+			uid: faker.random.number({ min: 1, max: 10 }),
+			admin: faker.random.boolean(),
+			active: faker.random.boolean(),
+			invite_url: faker.internet.url()
+		};
+		const createWorkspaceUsersQuery = `INSERT INTO workspace_users(uid, admin, active, invite_url)
+                                       VALUES ($1, $2, $3, $4) RETURNING *`;
+		const workspaceUsersTableValues = [
+			workspaceUsersData.uid,
+			workspaceUsersData.admin,
+			workspaceUsersData.active,
+			workspaceUsersData.invite_url
+		];
+		await pool.query(createWorkspaceUsersQuery, workspaceUsersTableValues);
 	}
 
 	await pool.end();
