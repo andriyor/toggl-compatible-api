@@ -97,12 +97,29 @@ const tagsTable = `CREATE TABLE IF NOT EXISTS
                        wid  INT NOT NULL
                    )`;
 
+const workspacesTable = `CREATE TABLE IF NOT EXISTS
+                             workspaces
+                   (
+                       id   SERIAL PRIMARY KEY,
+                       name VARCHAR(128) UNIQUE,
+                       premium BOOLEAN,
+                       admin BOOLEAN,
+                       default_hourly_rate FLOAT,
+                       default_currency VARCHAR(128),
+                       only_admins_may_create_projects BOOLEAN,
+                       rounding INT,
+                       rounding_minutes INT,
+                       at      TIMESTAMP,
+                       logo_url VARCHAR(512)
+                   )`;
+
 (async () => {
 	await pool.query(timeEntriesTable);
 	await pool.query(projectsTable);
 	await pool.query(usersTable);
 	await pool.query(projectUsersTable);
 	await pool.query(tagsTable);
+	await pool.query(workspacesTable);
 
 	for (let i = 0; i < 10; i++) {
 		const timeEntryData = {
@@ -239,6 +256,36 @@ const tagsTable = `CREATE TABLE IF NOT EXISTS
 			tagsData.wid
 		];
 		await pool.query(createTagsQuery, tagsValues);
+
+
+		const workspacesData = {
+			name: faker.random.word(),
+			premium: faker.random.boolean(),
+			admin: faker.random.boolean(),
+			default_hourly_rate: faker.random.float(),
+			default_currency: faker.finance.currencyCode(),
+			only_admins_may_create_projects: faker.random.boolean(),
+			rounding: faker.random.number({ min: -1, max: 1 }),
+			rounding_minutes: faker.random.number({ min: 1, max: 60 }),
+			at: faker.date.future(0.1),
+			logo_url: faker.image.imageUrl()
+		};
+		const createWorkspacesQuery = `INSERT INTO workspaces(name, premium, admin, default_hourly_rate, default_currency, 
+                       only_admins_may_create_projects, rounding, rounding_minutes, at, logo_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
+		const workspacesValues = [
+			workspacesData.name,
+			workspacesData.premium,
+			workspacesData.admin,
+			workspacesData.default_hourly_rate,
+			workspacesData.default_currency,
+			workspacesData.only_admins_may_create_projects,
+			workspacesData.rounding,
+			workspacesData.rounding_minutes,
+			workspacesData.at,
+			workspacesData.logo_url
+		];
+		await pool.query(createWorkspacesQuery, workspacesValues);
+
 	}
 
 	for (let i = 0; i < 10; i++) {
