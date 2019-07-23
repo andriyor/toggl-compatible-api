@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "premium": {
+          "type": "boolean"
+        },
+        "admin": {
+          "type": "boolean"
+        },
+        "default_hourly_rate": {
+          "type": "integer"
+        },
+        "default_currency": {
+          "type": "string"
+        },
+        "only_admins_may_create_projects": {
+          "type": "boolean"
+        },
+        "only_admins_see_billable_rates": {
+          "type": "boolean"
+        },
+        "rounding": {
+          "type": "integer"
+        },
+        "rounding_minutes": {
+          "type": "integer"
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "logo_url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "admin",
+        "at",
+        "default_currency",
+        "default_hourly_rate",
+        "id",
+        "logo_url",
+        "name",
+        "only_admins_may_create_projects",
+        "only_admins_see_billable_rates",
+        "premium",
+        "rounding",
+        "rounding_minutes"
+      ],
+      "title": "Welcome"
+    }
+  }
+}

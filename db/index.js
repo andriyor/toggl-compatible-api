@@ -103,10 +103,10 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
                              id                              SERIAL PRIMARY KEY,
                              name                            VARCHAR(128) UNIQUE,
                              premium                         BOOLEAN,
-                             admin                           BOOLEAN,
                              default_hourly_rate             FLOAT,
                              default_currency                VARCHAR(128),
                              only_admins_may_create_projects BOOLEAN,
+                             only_admins_see_billable_rates  BOOLEAN,
                              rounding                        INT,
                              rounding_minutes                INT,
                              at                              TIMESTAMP,
@@ -118,7 +118,9 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
                              (
                                  id         SERIAL PRIMARY KEY,
                                  uid        INT NOT NULL,
+                                 wid        INT NOT NULL,
                                  FOREIGN KEY (uid) REFERENCES users (id),
+                                 FOREIGN KEY (wid) REFERENCES workspaces (id),
                                  admin      BOOLEAN,
                                  active     BOOLEAN,
                                  invite_url VARCHAR(512)
@@ -269,26 +271,28 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
 		const workspacesData = {
 			name: faker.random.word(),
 			premium: faker.random.boolean(),
-			admin: faker.random.boolean(),
 			default_hourly_rate: faker.random.float(),
 			default_currency: faker.finance.currencyCode(),
 			only_admins_may_create_projects: faker.random.boolean(),
+			only_admins_see_billable_rates: faker.random.boolean(),
 			rounding: faker.random.number({ min: -1, max: 1 }),
 			rounding_minutes: faker.random.number({ min: 1, max: 60 }),
 			at: faker.date.future(0.1),
 			logo_url: faker.image.imageUrl()
 		};
-		const createWorkspacesQuery = `INSERT INTO workspaces(name, premium, admin, default_hourly_rate, default_currency,
-                                                          only_admins_may_create_projects, rounding, rounding_minutes,
+		const createWorkspacesQuery = `INSERT INTO workspaces(name, premium, default_hourly_rate, default_currency,
+                                                          only_admins_may_create_projects,
+                                                          only_admins_see_billable_rates,
+                                                          rounding, rounding_minutes,
                                                           at, logo_url)
                                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const workspacesValues = [
 			workspacesData.name,
 			workspacesData.premium,
-			workspacesData.admin,
 			workspacesData.default_hourly_rate,
 			workspacesData.default_currency,
 			workspacesData.only_admins_may_create_projects,
+			workspacesData.only_admins_see_billable_rates,
 			workspacesData.rounding,
 			workspacesData.rounding_minutes,
 			workspacesData.at,
@@ -320,14 +324,16 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
 
 		const workspaceUsersData = {
 			uid: faker.random.number({ min: 1, max: 10 }),
+			wid: faker.random.number({ min: 1, max: 10 }),
 			admin: faker.random.boolean(),
 			active: faker.random.boolean(),
 			invite_url: faker.internet.url()
 		};
-		const createWorkspaceUsersQuery = `INSERT INTO workspace_users(uid, admin, active, invite_url)
-                                       VALUES ($1, $2, $3, $4) RETURNING *`;
+		const createWorkspaceUsersQuery = `INSERT INTO workspace_users(uid, wid, admin, active, invite_url)
+                                       VALUES ($1, $2, $3, $4, $5) RETURNING *`;
 		const workspaceUsersTableValues = [
 			workspaceUsersData.uid,
+			workspaceUsersData.wid,
 			workspaceUsersData.admin,
 			workspaceUsersData.active,
 			workspaceUsersData.invite_url
