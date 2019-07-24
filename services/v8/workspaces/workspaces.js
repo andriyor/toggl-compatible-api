@@ -1,6 +1,8 @@
 const auth = require("basic-auth");
+
 const { Users } = require("../../../db/users");
 const { Workspaces } = require("../../../db/workspaces");
+const { responseUser } = require("../../../schema/schema");
 
 const responseWorkspace = {
 	id: {
@@ -144,5 +146,25 @@ module.exports = async fastify => {
 		await Workspaces.updateOne(request.body.workspace, request.params.workspace_id);
 		const workspace = await Workspaces.getById(request.params.workspace_id);
 		return { data: workspace };
+	});
+
+	const getWorkspaceUsers = {
+		schema: {
+			tags: ["workspaces"],
+			summary: "Get workspace users",
+			params: workspaceIdParam,
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseUser
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:workspace_id/users", getWorkspaceUsers, async request => {
+		return await Workspaces.getWorkspaceUsersByWorkspaceId(request.params.workspace_id);
 	});
 };
