@@ -1,16 +1,6 @@
-const { Pool } = require("pg");
 const auth = require("basic-auth");
-
-const config = {
-	user: "postgres", //this is the db user credential
-	database: "toggl_like",
-	password: "18091997",
-	port: 5432,
-	max: 10, // max number of clients in the pool
-	idleTimeoutMillis: 30000
-};
-
-const pool = new Pool(config);
+const { Users } = require("../../../db/users");
+const { Workspaces } = require("../../../db/workspaces");
 
 const responseWorkspace = {
 	id: {
@@ -71,28 +61,11 @@ module.exports = async fastify => {
 	};
 	fastify.get("/", workspacesSchema, async (request, reply) => {
 		const user = auth.parse(request.headers.authorization);
-		const query = "SELECT * FROM users WHERE fullname = $1";
-		const { rows } = await pool.query(query, [user.name]);
-		if (!rows.length || rows.password !== user.password) {
+		const users = await Users.findByUsername(user.name);
+		if (!users.length || users.password !== users.password) {
 			reply.code(403).send();
 		} else {
-			const userWorkspacesQuery = `SELECT workspaces.id,
-                                          name,
-                                          premium,
-                                          admin,
-                                          default_hourly_rate,
-                                          default_currency,
-                                          only_admins_may_create_projects,
-                                          only_admins_see_billable_rates,
-                                          rounding,
-                                          rounding_minutes,
-                                          at,
-                                          logo_url
-                                   FROM workspaces
-                                            right join workspace_users ON workspaces.id = workspace_users.wid
-                                   WHERE workspace_users.uid = $1`;
-			const result = await pool.query(userWorkspacesQuery, [rows[0].id]);
-			return result.rows;
+			return await Workspaces.getWorkspacesByUserId(users[0].id);
 		}
 	});
 };

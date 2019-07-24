@@ -1,16 +1,5 @@
-const { Pool } = require("pg");
 const faker = require("faker");
-
-const config = {
-	user: "postgres", //this is the db user credential
-	database: "toggl_like",
-	password: "18091997",
-	port: 5432,
-	max: 10, // max number of clients in the pool
-	idleTimeoutMillis: 30000
-};
-
-const pool = new Pool(config);
+const { pool } = require("./db");
 
 const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
                               time_entries
