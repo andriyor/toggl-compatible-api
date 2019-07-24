@@ -72,7 +72,7 @@ module.exports = async fastify => {
 		properties: {
 			workspace_id: {
 				type: "string",
-				description: "project id"
+				description: "workspace id"
 			}
 		}
 	};
@@ -95,7 +95,53 @@ module.exports = async fastify => {
 			}
 		}
 	};
-	fastify.get("/:workspace_id", workspaceByIdSchema, async request => {
+	fastify.get("/:workspace_id", workspaceByIdSchema, async (request, reply) => {
+		const user = auth.parse(request.headers.authorization);
+		const users = await Users.findByUsername(user.name);
+		if (!users.length || users.password !== users.password) {
+			reply.code(404).send();
+		} else {
+			const workspace = await Workspaces.getById(request.params.workspace_id);
+			return { data: workspace };
+		}
+	});
+
+	const { id, at, ...workspacePut } = responseWorkspace;
+	const workspacePutSchema = {
+		schema: {
+			summary: "Update workspace",
+			body: {
+				type: "object",
+				properties: {
+					workspace: {
+						type: "object",
+						properties: workspacePut,
+					}
+				}
+			},
+			response: {
+				200: {
+					type: "object",
+					properties: {
+						data: {
+							type: "object",
+							properties: responseWorkspace
+						}
+					}
+				}
+			}
+		}
+	};
+	const updateWorkspaceSchema = {
+		schema: {
+			tags: ["workspaces"],
+			params: workspaceIdParam,
+			...workspacePutSchema.schema,
+			summary: "Update workspace"
+		}
+	};
+	fastify.put("/:workspace_id", updateWorkspaceSchema, async request => {
+		await Workspaces.updateOne(request.body.workspace, request.params.workspace_id);
 		const workspace = await Workspaces.getById(request.params.workspace_id);
 		return { data: workspace };
 	});
