@@ -41,22 +41,20 @@ const responseWorkspace = {
 	}
 };
 
-const successfulResponse = {
-	200: {
-		type: "array",
-		items: {
-			type: "object",
-			properties: responseWorkspace
-		}
-	}
-};
-
 module.exports = async fastify => {
 	const workspacesSchema = {
 		schema: {
 			tags: ["workspaces"],
 			summary: "Get workspaces",
-			response: successfulResponse
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseWorkspace
+					}
+				}
+			}
 		}
 	};
 	fastify.get("/", workspacesSchema, async (request, reply) => {
@@ -67,5 +65,38 @@ module.exports = async fastify => {
 		} else {
 			return await Workspaces.getWorkspacesByUserId(users[0].id);
 		}
+	});
+
+	const workspaceIdParam = {
+		type: "object",
+		properties: {
+			workspace_id: {
+				type: "string",
+				description: "project id"
+			}
+		}
+	};
+
+	const workspaceByIdSchema = {
+		schema: {
+			tags: ["workspaces"],
+			summary: "Get single workspace",
+			params: workspaceIdParam,
+			response: {
+				200: {
+					type: "object",
+					properties: {
+						data: {
+							type: "object",
+							properties: responseWorkspace
+						}
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:workspace_id", workspaceByIdSchema, async request => {
+		const workspace = await Workspaces.getById(request.params.workspace_id);
+		return { data: workspace };
 	});
 };

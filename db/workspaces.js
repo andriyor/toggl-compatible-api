@@ -1,6 +1,12 @@
 const { pool } = require("./db");
 
 class Workspaces {
+	static async getById(workspace_id) {
+		const query = "SELECT * FROM workspaces WHERE id = $1";
+		const { rows } = await pool.query(query, [workspace_id]);
+		return rows[0];
+	}
+
 	static async getWorkspacesByUserId(userId) {
 		const userWorkspacesQuery = `SELECT workspaces.id,
                                         name,
