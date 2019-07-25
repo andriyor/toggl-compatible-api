@@ -115,6 +115,17 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
                                  invite_url VARCHAR(512)
                              )`;
 
+const clientsTable = `CREATE TABLE IF NOT EXISTS
+                          clients
+                      (
+                          id    SERIAL PRIMARY KEY,
+                          name  VARCHAR(128),
+                          wid   INT NOT NULL,
+                          notes VARCHAR(512),
+                          FOREIGN KEY (wid) REFERENCES workspaces (id),
+                          at    TIMESTAMP
+                      )`;
+
 (async () => {
 	await pool.query(timeEntriesTable);
 	await pool.query(projectsTable);
@@ -123,6 +134,7 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
 	await pool.query(tagsTable);
 	await pool.query(workspacesTable);
 	await pool.query(workspaceUsersTable);
+	await pool.query(clientsTable);
 
 	for (let i = 0; i < 10; i++) {
 		const timeEntryData = {
@@ -328,6 +340,22 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
 			workspaceUsersData.invite_url
 		];
 		await pool.query(createWorkspaceUsersQuery, workspaceUsersTableValues);
+
+		const clientsData = {
+			name: faker.random.word(),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			notes: faker.random.words(),
+			at: faker.date.future(0.1)
+		};
+		const createClientQuery = `INSERT INTO clients(name, wid, notes, at)
+                                       VALUES ($1, $2, $3, $4) RETURNING *`;
+		const clientTableValues = [
+			clientsData.name,
+			clientsData.wid,
+			clientsData.notes,
+			clientsData.at
+		];
+		await pool.query(createClientQuery, clientTableValues);
 	}
 
 	await pool.end();
