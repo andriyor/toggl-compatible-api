@@ -8,6 +8,12 @@ class Clients {
 		const { rows } = await pool.query(createQuery, values);
 		return rows[0];
 	}
+
+	static async findByID(clientId) {
+		const query = "SELECT * FROM clients WHERE id = $1";
+		const { rows } = await pool.query(query, [clientId]);
+		return rows[0];
+	}
 }
 
 module.exports = {

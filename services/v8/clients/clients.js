@@ -56,4 +56,26 @@ module.exports = async fastify => {
 		const client = await Clients.create(request.body.client);
 		return { data: client };
 	});
+
+	const clientIdParam = {
+		type: "object",
+		properties: {
+			client_id: {
+				type: "string",
+				description: "client id"
+			}
+		}
+	};
+	const clientByIdSchema = {
+		schema: {
+			tags: ["clients"],
+			summary: "Get client details",
+			params: clientIdParam,
+			response: successfulResponse
+		}
+	};
+	fastify.get("/:client_id", clientByIdSchema, async request => {
+		const client = await Clients.findByID(request.params.client_id);
+		return { data: client };
+	});
 };
