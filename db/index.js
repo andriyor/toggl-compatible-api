@@ -119,10 +119,10 @@ const clientsTable = `CREATE TABLE IF NOT EXISTS
                           clients
                       (
                           id    SERIAL PRIMARY KEY,
-                          name  VARCHAR(128),
+                          name  VARCHAR(128) NOT NULL,
                           wid   INT NOT NULL,
-                          notes VARCHAR(512),
                           FOREIGN KEY (wid) REFERENCES workspaces (id),
+                          notes VARCHAR(512),
                           at    TIMESTAMP
                       )`;
 
