@@ -101,4 +101,16 @@ module.exports = async fastify => {
 		const client = await Clients.updateOne(request.params.client_id, request.body.client);
 		return { data: client };
 	});
+
+	const clientDeleteSchema = {
+		schema: {
+			tags: ["clients"],
+			summary: "Delete a client",
+			params: clientIdParam
+		}
+	};
+	fastify.delete("/:client_id", clientDeleteSchema, async request => {
+		await Clients.destroy(request.params.client_id);
+		return "OK";
+	});
 };

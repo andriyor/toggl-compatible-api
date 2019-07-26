@@ -39,6 +39,12 @@ class Clients {
 		]);
 		return rows[0];
 	}
+
+	static async destroy(clientId) {
+		const query = "DELETE FROM clients WHERE id = $1;";
+		await pool.query(query, [clientId]);
+	}
+
 }
 
 module.exports = {
