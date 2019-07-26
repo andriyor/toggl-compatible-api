@@ -1,4 +1,3 @@
-const { pool } = require("../../../db/db");
 const { Clients } = require("../../../db/clients");
 
 const responseClient = {
@@ -35,7 +34,8 @@ const successfulResponse = {
 
 module.exports = async fastify => {
 	const { id, at, ...clientPost } = responseClient;
-	const clientPostPutSchema = {
+	const { wid, ...clientPut } = clientPost;
+	const clientPostSchema = {
 		schema: {
 			tags: ["clients"],
 			summary: "Create a client",
@@ -52,7 +52,7 @@ module.exports = async fastify => {
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", clientPostPutSchema, async request => {
+	fastify.post("/", clientPostSchema, async request => {
 		const client = await Clients.create(request.body.client);
 		return { data: client };
 	});
@@ -76,6 +76,29 @@ module.exports = async fastify => {
 	};
 	fastify.get("/:client_id", clientByIdSchema, async request => {
 		const client = await Clients.findByID(request.params.client_id);
+		return { data: client };
+	});
+
+	const clientPuttSchema = {
+		schema: {
+			tags: ["clients"],
+			summary: "Update a client",
+			body: {
+				type: "object",
+				properties: {
+					client: {
+						type: "object",
+						properties: clientPut,
+						required: ["name"]
+					}
+				}
+			},
+			params: clientIdParam,
+			response: successfulResponse
+		}
+	};
+	fastify.put("/:client_id", clientPuttSchema, async request => {
+		const client = await Clients.updateOne(request.params.client_id, request.body.client);
 		return { data: client };
 	});
 };
