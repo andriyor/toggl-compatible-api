@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/Group"
+        }
+      },
+      "required": [
+        "group"
+      ],
+      "title": "Welcome"
+    },
+    "Group": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "wid": {
+          "type": "integer"
+        },
+        "at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "at",
+        "id",
+        "name",
+        "wid"
+      ],
+      "title": "Group"
+    }
+  }
+}

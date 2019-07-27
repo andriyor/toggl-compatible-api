@@ -82,8 +82,9 @@ const tagsTable = `CREATE TABLE IF NOT EXISTS
                        tags
                    (
                        id   SERIAL PRIMARY KEY,
-                       name VARCHAR(128) UNIQUE,
-                       wid  INT NOT NULL
+                       name VARCHAR(128),
+                       wid  INT NOT NULL,
+                       unique (name, wid)
                    )`;
 
 const workspacesTable = `CREATE TABLE IF NOT EXISTS
@@ -120,21 +121,22 @@ const clientsTable = `CREATE TABLE IF NOT EXISTS
                       (
                           id    SERIAL PRIMARY KEY,
                           name  VARCHAR(128) NOT NULL,
-                          wid   INT NOT NULL,
+                          wid   INT          NOT NULL,
                           FOREIGN KEY (wid) REFERENCES workspaces (id),
                           notes VARCHAR(512),
                           at    TIMESTAMP
                       )`;
 
 const groupsTable = `CREATE TABLE IF NOT EXISTS
-                          groups
-                      (
-                          id    SERIAL PRIMARY KEY,
-                          name  VARCHAR(128) NOT NULL,
-                          wid   INT NOT NULL,
-                          FOREIGN KEY (wid) REFERENCES workspaces (id),
-                          at    TIMESTAMP
-                      )`;
+                         groups
+                     (
+                         id   SERIAL PRIMARY KEY,
+                         name VARCHAR(128) NOT NULL,
+                         wid  INT          NOT NULL,
+                         FOREIGN KEY (wid) REFERENCES workspaces (id),
+                         at   TIMESTAMP,
+                         unique (name, wid)
+                     )`;
 
 (async () => {
 	await pool.query(timeEntriesTable);
@@ -359,7 +361,7 @@ const groupsTable = `CREATE TABLE IF NOT EXISTS
 			at: faker.date.future(0.1)
 		};
 		const createClientQuery = `INSERT INTO clients(name, wid, notes, at)
-                                       VALUES ($1, $2, $3, $4) RETURNING *`;
+                               VALUES ($1, $2, $3, $4) RETURNING *`;
 		const clientTableValues = [
 			clientsData.name,
 			clientsData.wid,
