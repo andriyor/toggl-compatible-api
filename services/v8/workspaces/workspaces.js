@@ -4,6 +4,7 @@ const { Users } = require("../../../db/users");
 const { Workspaces } = require("../../../db/workspaces");
 const { responseUser } = require("../../../schema/schema");
 const { responseClient } = require("../../../schema/schema");
+const { responseGroup } = require("../../../schema/schema");
 
 const responseWorkspace = {
 	id: {
@@ -118,7 +119,7 @@ module.exports = async fastify => {
 				properties: {
 					workspace: {
 						type: "object",
-						properties: workspacePut,
+						properties: workspacePut
 					}
 				}
 			},
@@ -144,7 +145,10 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.put("/:workspace_id", updateWorkspaceSchema, async request => {
-		await Workspaces.updateOne(request.body.workspace, request.params.workspace_id);
+		await Workspaces.updateOne(
+			request.body.workspace,
+			request.params.workspace_id
+		);
 		const workspace = await Workspaces.getById(request.params.workspace_id);
 		return { data: workspace };
 	});
@@ -166,7 +170,9 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.get("/:workspace_id/users", getWorkspaceUsers, async request => {
-		return await Workspaces.getWorkspaceUsersByWorkspaceId(request.params.workspace_id);
+		return await Workspaces.getWorkspaceUsersByWorkspaceId(
+			request.params.workspace_id
+		);
 	});
 
 	const workspaceSchema = {
@@ -175,9 +181,9 @@ module.exports = async fastify => {
 		},
 		cur: {
 			type: "string"
-		},
+		}
 	};
-	const clientsSchema = {...responseClient, ...workspaceSchema};
+	const clientsSchema = { ...responseClient, ...workspaceSchema };
 	const getWorkspaceClients = {
 		schema: {
 			tags: ["workspaces"],
@@ -195,6 +201,30 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.get("/:workspace_id/clients", getWorkspaceClients, async request => {
-		return await Workspaces.getWorkspaceClientsByWorkspaceId(request.params.workspace_id);
+		return await Workspaces.getWorkspaceClientsByWorkspaceId(
+			request.params.workspace_id
+		);
+	});
+
+	const getWorkspaceGroups = {
+		schema: {
+			tags: ["workspaces"],
+			summary: "Get workspace groups",
+			params: workspaceIdParam,
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseGroup
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:workspace_id/groups", getWorkspaceGroups, async request => {
+		return await Workspaces.getWorkspaceGroupsByWorkspaceId(
+			request.params.workspace_id
+		);
 	});
 };

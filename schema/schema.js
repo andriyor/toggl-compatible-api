@@ -84,7 +84,23 @@ const responseClient = {
 	}
 };
 
+const responseGroup = {
+	id: {
+		type: "integer"
+	},
+	name: {
+		type: "string"
+	},
+	wid: {
+		type: "integer"
+	},
+	at: {
+		type: "string"
+	}
+};
+
 module.exports = {
 	responseUser,
-	responseClient
+	responseClient,
+	responseGroup
 };

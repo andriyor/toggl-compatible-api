@@ -109,6 +109,13 @@ class Workspaces {
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
+
+	static async getWorkspaceGroupsByWorkspaceId(workspaceId) {
+		const query = "SELECT * FROM groups WHERE wid = $1";
+		const { rows } = await pool.query(query, [workspaceId]);
+		return rows;
+	}
+
 }
 
 module.exports = {

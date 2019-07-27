@@ -1,19 +1,6 @@
 const { Groups } = require("../../../db/groups");
 
-const groupsResponse = {
-	id: {
-		type: "integer"
-	},
-	name: {
-		type: "string"
-	},
-	wid: {
-		type: "integer"
-	},
-	at: {
-		type: "string"
-	}
-};
+const { responseGroup } = require("../../../schema/schema");
 
 const successfulResponse = {
 	200: {
@@ -21,7 +8,7 @@ const successfulResponse = {
 		properties: {
 			data: {
 				type: "object",
-				properties: groupsResponse,
+				properties: responseGroup,
 				required: ["id", "wid", "name"]
 			}
 		}
@@ -29,7 +16,7 @@ const successfulResponse = {
 };
 
 module.exports = async fastify => {
-	const { id, ...groupPost } = groupsResponse;
+	const { id, ...groupPost } = responseGroup;
 	const groupPostPutSchema = {
 		schema: {
 			tags: ["groups"],
