@@ -126,6 +126,16 @@ const clientsTable = `CREATE TABLE IF NOT EXISTS
                           at    TIMESTAMP
                       )`;
 
+const groupsTable = `CREATE TABLE IF NOT EXISTS
+                          groups
+                      (
+                          id    SERIAL PRIMARY KEY,
+                          name  VARCHAR(128) NOT NULL,
+                          wid   INT NOT NULL,
+                          FOREIGN KEY (wid) REFERENCES workspaces (id),
+                          at    TIMESTAMP
+                      )`;
+
 (async () => {
 	await pool.query(timeEntriesTable);
 	await pool.query(projectsTable);
@@ -135,6 +145,7 @@ const clientsTable = `CREATE TABLE IF NOT EXISTS
 	await pool.query(workspacesTable);
 	await pool.query(workspaceUsersTable);
 	await pool.query(clientsTable);
+	await pool.query(groupsTable);
 
 	for (let i = 0; i < 10; i++) {
 		const timeEntryData = {
@@ -356,6 +367,16 @@ const clientsTable = `CREATE TABLE IF NOT EXISTS
 			clientsData.at
 		];
 		await pool.query(createClientQuery, clientTableValues);
+
+		const groupData = {
+			name: faker.random.word(),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			at: faker.date.future(0.1)
+		};
+		const createTagsQuery = `INSERT INTO groups(name, wid, at)
+                             VALUES ($1, $2, $3) RETURNING *`;
+		const groupValues = [groupData.name, groupData.wid, groupData.at];
+		await pool.query(createTagsQuery, groupValues);
 	}
 
 	await pool.end();
