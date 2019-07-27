@@ -18,6 +18,11 @@ class Groups {
 		const { rows } = await pool.query(query, values);
 		return rows[0];
 	}
+
+	static async destroy(groupId) {
+		const query = "DELETE FROM groups WHERE id = $1;";
+		await pool.query(query, [groupId]);
+	}
 }
 
 module.exports = {

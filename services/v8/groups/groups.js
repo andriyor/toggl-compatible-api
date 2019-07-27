@@ -93,4 +93,16 @@ module.exports = async fastify => {
 		);
 		return { data: group };
 	});
+
+	const groupDeleteSchema = {
+		schema: {
+			tags: ["groups"],
+			summary: "Delete a group",
+			params: groupIdParam
+		}
+	};
+	fastify.delete("/:group_id", groupDeleteSchema, async request => {
+		await Groups.destroy(request.params.group_id);
+		return "OK";
+	});
 };
