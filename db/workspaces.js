@@ -1,9 +1,9 @@
 const { pool } = require("./db");
 
 class Workspaces {
-	static async getById(workspace_id) {
+	static async getById(workspaceId) {
 		const query = "SELECT * FROM workspaces WHERE id = $1";
-		const { rows } = await pool.query(query, [workspace_id]);
+		const { rows } = await pool.query(query, [workspaceId]);
 		return rows[0];
 	}
 
@@ -90,8 +90,23 @@ class Workspaces {
                           timeline_experiment
                    FROM users
                             RIGHT JOIN workspace_users ON users.id = workspace_users.uid
-                            WHERE workspace_users.wid = $1`;
+                   WHERE workspace_users.wid = $1`;
 		const { rows } = await pool.query(query, [workspace_id]);
+		return rows;
+	}
+
+	static async getWorkspaceClientsByWorkspaceId(workspaceId) {
+		const query = `SELECT clients.id,
+                          clients.name,
+                          wid,
+                          notes,
+                          clients.at,
+                          ROUND(CAST(default_hourly_rate AS numeric), rounding) as hrate,
+                          default_currency                                      as cur
+                   FROM clients
+                            left join workspaces on clients.wid = workspaces.id
+                   WHERE wid = $1`;
+		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 }

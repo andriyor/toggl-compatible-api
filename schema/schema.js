@@ -65,6 +65,26 @@ const responseUser = {
 	}
 };
 
+const responseClient = {
+	id: {
+		type: "integer"
+	},
+	wid: {
+		type: "integer"
+	},
+	name: {
+		type: "string"
+	},
+	notes: {
+		type: "string"
+	},
+	at: {
+		type: "string",
+		format: "date-time"
+	}
+};
+
 module.exports = {
-	responseUser
+	responseUser,
+	responseClient
 };

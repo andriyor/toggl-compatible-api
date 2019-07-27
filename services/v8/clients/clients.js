@@ -1,23 +1,5 @@
 const { Clients } = require("../../../db/clients");
-
-const responseClient = {
-	id: {
-		type: "integer"
-	},
-	wid: {
-		type: "integer"
-	},
-	name: {
-		type: "string"
-	},
-	notes: {
-		type: "string"
-	},
-	at: {
-		type: "string",
-		format: "date-time"
-	}
-};
+const { responseClient } = require("../../../schema/schema");
 
 const successfulResponse = {
 	200: {
