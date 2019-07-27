@@ -57,4 +57,40 @@ module.exports = async fastify => {
 			}
 		}
 	});
+
+	const { at, wid, ...groupPut } = groupPost;
+	const groupIdParam = {
+		type: "object",
+		properties: {
+			group_id: {
+				type: "string",
+				description: "group id"
+			}
+		}
+	};
+	const updateTagSchema = {
+		schema: {
+			tags: ["groups"],
+			summary: "Update a group",
+			params: groupIdParam,
+			body: {
+				type: "object",
+				properties: {
+					group: {
+						type: "object",
+						properties: groupPut,
+						required: ["name"]
+					}
+				}
+			},
+			response: successfulResponse
+		}
+	};
+	fastify.put("/:group_id", updateTagSchema, async request => {
+		const group = await Groups.updateOne(
+			request.params.group_id,
+			request.body.group
+		);
+		return { data: group };
+	});
 };
