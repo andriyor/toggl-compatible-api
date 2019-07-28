@@ -17,6 +17,12 @@ class Tasks {
 		const { rows } = await pool.query(query, values);
 		return rows[0];
 	}
+
+	static async findByID(taskId) {
+		const query = "SELECT * FROM tasks WHERE id = $1";
+		const { rows } = await pool.query(query, [taskId]);
+		return rows[0];
+	}
 }
 
 module.exports = {

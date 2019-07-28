@@ -73,4 +73,27 @@ module.exports = async fastify => {
 		}
 	});
 
+	const taskIdParam = {
+		type: "object",
+		properties: {
+			task_id: {
+				type: "string",
+				description: "task id"
+			}
+		}
+	};
+	const taskByIdSchema = {
+		schema: {
+			tags: ["tasks"],
+			summary: "Get task details",
+			params: taskIdParam,
+			response: successfulResponse
+		}
+	};
+	fastify.get("/:task_id", taskByIdSchema, async request => {
+		const task = await Tasks.findByID(request.params.task_id);
+		return { data: task };
+	});
+
+
 };
