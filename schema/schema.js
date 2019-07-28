@@ -163,11 +163,23 @@ const responseTask = {
 	}
 };
 
+const responseTag = {
+	id: {
+		type: "integer"
+	},
+	wid: {
+		type: "integer"
+	},
+	name: {
+		type: "string"
+	}
+};
 
 module.exports = {
 	responseUser,
 	responseClient,
 	responseGroup,
 	responseProject,
-	responseTask
+	responseTask,
+	responseTag
 };

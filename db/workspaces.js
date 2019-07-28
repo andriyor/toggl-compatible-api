@@ -13,10 +13,8 @@ class Workspaces {
 			workspace.premium || oldWorkspace.premium,
 			workspace.default_hourly_rate || oldWorkspace.default_hourly_rate,
 			workspace.default_currency || oldWorkspace.default_currency,
-			workspace.only_admins_may_create_projects ||
-				oldWorkspace.only_admins_may_create_projects,
-			workspace.only_admins_see_billable_rates ||
-				oldWorkspace.only_admins_see_billable_rates,
+			workspace.only_admins_may_create_projects || oldWorkspace.only_admins_may_create_projects,
+			workspace.only_admins_see_billable_rates || oldWorkspace.only_admins_see_billable_rates,
 			workspace.rounding || oldWorkspace.rounding,
 			workspace.rounding_minutes || oldWorkspace.rounding_minutes,
 			new Date(),
@@ -41,10 +39,7 @@ class Workspaces {
                                          logo_url=$10
                                      WHERE id = $11`;
 		const workspaceValues = Workspaces.getValues(project, result.rows[0]);
-		const { rows } = await pool.query(updateOneWorkspaceQuery, [
-			...workspaceValues,
-			project_id
-		]);
+		const { rows } = await pool.query(updateOneWorkspaceQuery, [...workspaceValues, project_id]);
 		return rows[0];
 	}
 
@@ -116,7 +111,7 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceProjectsByActive(workspaceId, active=true) {
+	static async getWorkspaceProjectsByActive(workspaceId, active = true) {
 		const query = "SELECT * FROM projects WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
@@ -128,7 +123,7 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceTasksByActive(workspaceId, active=true) {
+	static async getWorkspaceTasksByActive(workspaceId, active = true) {
 		const query = "SELECT * FROM tasks WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
@@ -140,6 +135,11 @@ class Workspaces {
 		return rows;
 	}
 
+	static async getWorkspaceTagsByActive(workspaceId) {
+		const query = "SELECT * FROM tags WHERE wid = $1";
+		const { rows } = await pool.query(query, [workspaceId]);
+		return rows;
+	}
 }
 
 module.exports = {

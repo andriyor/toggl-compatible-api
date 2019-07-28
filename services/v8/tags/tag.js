@@ -1,5 +1,7 @@
 const { Pool } = require("pg");
 
+const { responseTag } = require("../../../schema/schema");
+
 const config = {
 	user: "postgres", //this is the db user credential
 	database: "toggl_like",
@@ -10,18 +12,6 @@ const config = {
 };
 
 const pool = new Pool(config);
-
-const responseTag = {
-	id: {
-		type: "integer"
-	},
-	wid: {
-		type: "integer"
-	},
-	name: {
-		type: "string"
-	}
-};
 
 const successfulResponse = {
 	200: {
@@ -64,7 +54,7 @@ module.exports = async fastify => {
 			const { rows } = await pool.query(createTagQuery, projectUserValues);
 			return { data: rows[0] };
 		} catch (e) {
-			if (e.code === '23505') {
+			if (e.code === "23505") {
 				reply.code(400).send(`Tag already exists: ${request.body.tag.name}`);
 			}
 		}
@@ -105,7 +95,6 @@ module.exports = async fastify => {
 		const { rows } = await pool.query(updateOneTagQuery, tagValues);
 		return { data: rows[0] };
 	});
-
 
 	const projectDeleteSchema = {
 		schema: {

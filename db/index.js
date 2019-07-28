@@ -78,15 +78,6 @@ const projectUsersTable = `CREATE TABLE IF NOT EXISTS
                                at      TIMESTAMP
                            )`;
 
-const tagsTable = `CREATE TABLE IF NOT EXISTS
-                       tags
-                   (
-                       id   SERIAL PRIMARY KEY,
-                       name VARCHAR(128),
-                       wid  INT NOT NULL,
-                       unique (name, wid)
-                   )`;
-
 const workspacesTable = `CREATE TABLE IF NOT EXISTS
                              workspaces
                          (
@@ -102,6 +93,16 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
                              at                              TIMESTAMP,
                              logo_url                        VARCHAR(512)
                          )`;
+
+const tagsTable = `CREATE TABLE IF NOT EXISTS
+                       tags
+                   (
+                       id   SERIAL PRIMARY KEY,
+                       name VARCHAR(128) UNIQUE,
+                       wid  INT NOT NULL,
+                       FOREIGN KEY (wid) REFERENCES workspaces (id),
+                       unique (name, wid)
+                   )`;
 
 const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
                                  workspace_users
@@ -160,8 +161,8 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 	await pool.query(projectsTable);
 	await pool.query(usersTable);
 	await pool.query(projectUsersTable);
-	await pool.query(tagsTable);
 	await pool.query(workspacesTable);
+	await pool.query(tagsTable);
 	await pool.query(workspaceUsersTable);
 	await pool.query(clientsTable);
 	await pool.query(groupsTable);
@@ -291,15 +292,6 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 		];
 		await pool.query(createUserQuery, userValues);
 
-		const tagsData = {
-			name: faker.random.word(),
-			wid: faker.random.number(100)
-		};
-		const createTagsQuery = `INSERT INTO tags(name, wid)
-                             VALUES ($1, $2) RETURNING *`;
-		const tagsValues = [tagsData.name, tagsData.wid];
-		await pool.query(createTagsQuery, tagsValues);
-
 		const workspacesData = {
 			name: faker.random.word(),
 			premium: faker.random.boolean(),
@@ -393,10 +385,10 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 			wid: faker.random.number({ min: 1, max: 10 }),
 			at: faker.date.future(0.1)
 		};
-		const createTagsQuery = `INSERT INTO groups(name, wid, at)
+		const createGroupQuery = `INSERT INTO groups(name, wid, at)
                              VALUES ($1, $2, $3) RETURNING *`;
 		const groupValues = [groupData.name, groupData.wid, groupData.at];
-		await pool.query(createTagsQuery, groupValues);
+		await pool.query(createGroupQuery, groupValues);
 
 		const taskData = {
 			name: faker.random.word(),
@@ -421,6 +413,15 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 			taskData.tracked_seconds
 		];
 		await pool.query(createTaskQuery, taskValues);
+
+		const tagsData = {
+			name: faker.random.word(),
+			wid: faker.random.number({ min: 1, max: 10 })
+		};
+		const createTagsQuery = `INSERT INTO tags(name, wid)
+                             VALUES ($1, $2) RETURNING *`;
+		const tagsValues = [tagsData.name, tagsData.wid];
+		await pool.query(createTagsQuery, tagsValues);
 	}
 
 	await pool.end();

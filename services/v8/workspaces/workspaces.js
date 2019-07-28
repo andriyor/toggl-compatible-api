@@ -7,6 +7,7 @@ const { responseClient } = require("../../../schema/schema");
 const { responseGroup } = require("../../../schema/schema");
 const { responseProject } = require("../../../schema/schema");
 const { responseTask } = require("../../../schema/schema");
+const { responseTag } = require("../../../schema/schema");
 
 const responseWorkspace = {
 	id: {
@@ -275,6 +276,29 @@ module.exports = async fastify => {
 			return await Workspaces.getWorkspaceTasks(request.params.workspace_id);
 		}
 		return await Workspaces.getWorkspaceTasksByActive(
+			request.params.workspace_id,
+			request.query.active
+		);
+	});
+
+	const getWorkspaceTags = {
+		schema: {
+			tags: ["workspaces"],
+			summary: "Get workspace tags",
+			params: workspaceIdParam,
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseTag
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:workspace_id/tags", getWorkspaceTags, async request => {
+		return await Workspaces.getWorkspaceTagsByActive(
 			request.params.workspace_id,
 			request.query.active
 		);
