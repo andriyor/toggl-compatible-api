@@ -44,7 +44,7 @@ const successfulResponse = {
 };
 
 module.exports = async fastify => {
-	const { id, ...taskPost } = responseTask;
+	const { id, at, ...taskPost } = responseTask;
 	const taskPostPutSchema = {
 		schema: {
 			tags: ["tasks"],
@@ -95,5 +95,26 @@ module.exports = async fastify => {
 		return { data: task };
 	});
 
-
+	const taskPuttSchema = {
+		schema: {
+			tags: ["tasks"],
+			summary: "Update a task",
+			body: {
+				type: "object",
+				properties: {
+					task: {
+						type: "object",
+						properties: taskPost,
+						required: ["name"]
+					}
+				}
+			},
+			params: taskIdParam,
+			response: successfulResponse
+		}
+	};
+	fastify.put("/:task_id", taskPuttSchema, async request => {
+		const task = await Tasks.updateOne(request.params.task_id, request.body.task);
+		return { data: task };
+	});
 };
