@@ -97,7 +97,10 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.delete("/:task_id", taskDeleteSchema, async request => {
-		await Tasks.destroy(request.params.task_id);
+		const taskIds = request.params.task_id.split(',');
+		for (taskId of taskIds) {
+			await Tasks.destroy(taskId);
+		}
 		return "OK";
 	});
 };
