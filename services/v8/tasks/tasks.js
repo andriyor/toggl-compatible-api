@@ -117,4 +117,16 @@ module.exports = async fastify => {
 		const task = await Tasks.updateOne(request.params.task_id, request.body.task);
 		return { data: task };
 	});
+
+	const taskDeleteSchema = {
+		schema: {
+			tags: ["tasks"],
+			summary: "Delete a task",
+			params: taskIdParam
+		}
+	};
+	fastify.delete("/:task_id", taskDeleteSchema, async request => {
+		await Tasks.destroy(request.params.task_id);
+		return "OK";
+	});
 };

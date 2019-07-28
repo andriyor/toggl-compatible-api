@@ -55,6 +55,11 @@ class Tasks {
 		const { rows } = await pool.query(updateOneQuery, [...values, taskId]);
 		return rows[0];
 	}
+
+	static async destroy(taskId) {
+		const query = "DELETE FROM tasks WHERE id = $1;";
+		await pool.query(query, [taskId]);
+	}
 }
 
 module.exports = {
