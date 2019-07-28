@@ -1,5 +1,7 @@
 const { Pool } = require("pg");
 
+const { responseProject } = require("../../../schema/schema");
+
 const config = {
 	user: "postgres", //this is the db user credential
 	database: "toggl_like",
@@ -10,40 +12,6 @@ const config = {
 };
 
 const pool = new Pool(config);
-
-const responseProject = {
-	id: {
-		type: "integer"
-	},
-	wid: {
-		type: "integer"
-	},
-	cid: {
-		type: "integer"
-	},
-	name: {
-		type: "string"
-	},
-	billable: {
-		type: "boolean"
-	},
-	is_private: {
-		type: "boolean"
-	},
-	active: {
-		type: "boolean"
-	},
-	at: {
-		type: "string",
-		format: "date-time"
-	},
-	template_id: {
-		type: "integer"
-	},
-	color: {
-		type: "string"
-	}
-};
 
 const responseProjectUsers = {
 	id: {

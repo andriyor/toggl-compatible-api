@@ -27,5 +27,8 @@
   },
   "devDependencies": {
     "tap": "^12.5.3"
+  },
+  "prettier": {
+    "printWidth": 100
   }
 }
