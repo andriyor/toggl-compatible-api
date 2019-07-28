@@ -23,7 +23,8 @@ module.exports = function(fastify, opts, next) {
 				{ name: "tag", description: "Tags" },
 				{ name: "workspaces", description: "Workspaces" },
 				{ name: "clients", description: "Clients" },
-				{ name: "groups", description: "Groups" }
+				{ name: "groups", description: "Groups" },
+				{ name: "tasks", description: "Tasks" }
 			],
 			securityDefinitions: {
 				basicAuth: {

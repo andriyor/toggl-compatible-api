@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/Task"
+        }
+      },
+      "required": [
+        "task"
+      ],
+      "title": "Welcome"
+    },
+    "Task": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "wid": {
+          "type": "integer"
+        },
+        "pid": {
+          "type": "integer"
+        },
+        "uid": {
+          "type": "integer"
+        },
+        "estimated_seconds": {
+          "type": "integer"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "at": {
+          "type": "string"
+        },
+        "tracked_seconds": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "active",
+        "at",
+        "estimated_seconds",
+        "id",
+        "name",
+        "pid",
+        "tracked_seconds",
+        "uid",
+        "wid"
+      ],
+      "title": "Task"
+    }
+  }
+}

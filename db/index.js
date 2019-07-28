@@ -142,13 +142,13 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
                         tasks
                     (
                         id                SERIAL PRIMARY KEY,
-                        name              VARCHAR(128) NOT NULL,
+                        name              VARCHAR(128) NOT NULL UNIQUE,
                         pid               INT          NOT NULL,
-                        FOREIGN KEY (wid) REFERENCES projects (id),
+                        FOREIGN KEY (pid) REFERENCES projects (id),
                         wid               INT          NOT NULL,
                         FOREIGN KEY (wid) REFERENCES workspaces (id),
                         uid               INT          NOT NULL,
-                        FOREIGN KEY (wid) REFERENCES users (id),
+                        FOREIGN KEY (uid) REFERENCES users (id),
                         estimated_seconds INT,
                         active            BOOLEAN,
                         at                TIMESTAMP,
