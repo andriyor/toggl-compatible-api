@@ -1,43 +1,6 @@
 const faker = require("faker");
 const { pool } = require("./db");
 
-const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
-                              time_entries
-                          (
-                              id           SERIAL PRIMARY KEY,
-                              pid          INT,
-                              wid          INT,
-                              tid          INT,
-                              created_with VARCHAR(128),
-                              billable     BOOLEAN,
-                              duronly      BOOLEAN,
-                              start        TIMESTAMP,
-                              stop         TIMESTAMP,
-                              at           TIMESTAMP,
-                              duration     INT,
-                              tags         text[],
-                              description  VARCHAR(128)
-                          )`;
-
-const projectsTable = `CREATE TABLE IF NOT EXISTS
-                           projects
-                       (
-                           id              SERIAL PRIMARY KEY,
-                           name            VARCHAR(128) UNIQUE,
-                           wid             INT,
-                           cid             INT,
-                           active          BOOLEAN,
-                           is_private      BOOLEAN,
-                           template        BOOLEAN,
-                           template_id     INT,
-                           billable        BOOLEAN,
-                           auto_estimates  BOOLEAN,
-                           estimated_hours INT,
-                           at              TIMESTAMP,
-                           color           VARCHAR(128),
-                           rate            FLOAT
-                       )`;
-
 const usersTable = `CREATE TABLE IF NOT EXISTS
                         users
                     (
@@ -64,20 +27,6 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
                         timeline_experiment       BOOLEAN
                     )`;
 
-const projectUsersTable = `CREATE TABLE IF NOT EXISTS
-                               project_users
-                           (
-                               id      SERIAL PRIMARY KEY,
-                               pid     INT NOT NULL,
-                               uid     INT NOT NULL,
-                               FOREIGN KEY (pid) REFERENCES projects (id),
-                               FOREIGN KEY (uid) REFERENCES users (id),
-                               wid     INT,
-                               manager BOOLEAN,
-                               rate    FLOAT,
-                               at      TIMESTAMP
-                           )`;
-
 const workspacesTable = `CREATE TABLE IF NOT EXISTS
                              workspaces
                          (
@@ -93,6 +42,53 @@ const workspacesTable = `CREATE TABLE IF NOT EXISTS
                              at                              TIMESTAMP,
                              logo_url                        VARCHAR(512)
                          )`;
+
+const clientsTable = `CREATE TABLE IF NOT EXISTS
+                          clients
+                      (
+                          id    SERIAL PRIMARY KEY,
+                          name  VARCHAR(128) NOT NULL,
+                          wid   INT          NOT NULL,
+                          FOREIGN KEY (wid) REFERENCES workspaces (id),
+                          notes VARCHAR(512),
+                          at    TIMESTAMP
+                      )`;
+
+const projectsTable = `CREATE TABLE IF NOT EXISTS
+                           projects
+                       (
+                           id              SERIAL PRIMARY KEY,
+                           name            VARCHAR(128) UNIQUE,
+                           wid             INT,
+                           FOREIGN KEY (wid) REFERENCES workspaces (id),
+                           cid             INT,
+                           FOREIGN KEY (cid) REFERENCES clients (id),
+                           active          BOOLEAN,
+                           is_private      BOOLEAN,
+                           template        BOOLEAN,
+                           template_id     INT,
+                           billable        BOOLEAN,
+                           auto_estimates  BOOLEAN,
+                           estimated_hours INT,
+                           at              TIMESTAMP,
+                           color           VARCHAR(128),
+                           rate            FLOAT
+                       )`;
+
+const projectUsersTable = `CREATE TABLE IF NOT EXISTS
+                               project_users
+                           (
+                               id      SERIAL PRIMARY KEY,
+                               pid     INT NOT NULL,
+                               FOREIGN KEY (pid) REFERENCES projects (id),
+                               uid     INT NOT NULL,
+                               FOREIGN KEY (uid) REFERENCES users (id),
+                               wid     INT,
+                               FOREIGN KEY (wid) REFERENCES workspaces (id),
+                               manager BOOLEAN,
+                               rate    FLOAT,
+                               at      TIMESTAMP
+                           )`;
 
 const tagsTable = `CREATE TABLE IF NOT EXISTS
                        tags
@@ -116,17 +112,6 @@ const workspaceUsersTable = `CREATE TABLE IF NOT EXISTS
                                  active     BOOLEAN,
                                  invite_url VARCHAR(512)
                              )`;
-
-const clientsTable = `CREATE TABLE IF NOT EXISTS
-                          clients
-                      (
-                          id    SERIAL PRIMARY KEY,
-                          name  VARCHAR(128) NOT NULL,
-                          wid   INT          NOT NULL,
-                          FOREIGN KEY (wid) REFERENCES workspaces (id),
-                          notes VARCHAR(512),
-                          at    TIMESTAMP
-                      )`;
 
 const groupsTable = `CREATE TABLE IF NOT EXISTS
                          groups
@@ -156,92 +141,43 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
                         tracked_seconds   INT
                     )`;
 
+const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
+                              time_entries
+                          (
+                              id           SERIAL PRIMARY KEY,
+                              pid          INT,
+                              FOREIGN KEY (pid) REFERENCES projects (id),
+                              wid          INT,
+                              FOREIGN KEY (wid) REFERENCES workspaces (id),
+                              tid          INT,
+                              FOREIGN KEY (tid) REFERENCES tasks (id),
+                              created_with VARCHAR(128),
+                              billable     BOOLEAN,
+                              duronly      BOOLEAN,
+                              start        TIMESTAMP,
+                              stop         TIMESTAMP,
+                              at           TIMESTAMP,
+                              duration     INT,
+                              tags         text[],
+                              description  VARCHAR(128)
+                          )`;
+
 (async () => {
-	await pool.query(timeEntriesTable);
-	await pool.query(projectsTable);
 	await pool.query(usersTable);
-	await pool.query(projectUsersTable);
 	await pool.query(workspacesTable);
+	await pool.query(clientsTable);
+	await pool.query(projectsTable);
+	await pool.query(projectUsersTable);
 	await pool.query(tagsTable);
 	await pool.query(workspaceUsersTable);
-	await pool.query(clientsTable);
 	await pool.query(groupsTable);
 	await pool.query(tasksTable);
+	await pool.query(timeEntriesTable);
 
 	for (let i = 0; i < 10; i++) {
-		const timeEntryData = {
-			pid: faker.random.number(100),
-			wid: faker.random.number(100),
-			tid: faker.random.number(100),
-			tags: [faker.random.word(), faker.random.word()],
-			created_with: faker.random.word(),
-			billable: faker.random.boolean(),
-			duronly: faker.random.boolean(),
-			start: faker.date.future(0.1),
-			stop: faker.date.future(0.1),
-			at: faker.date.future(0.1),
-			duration: faker.random.number({ min: 100, max: 1000 }),
-			description: faker.random.words()
-		};
-
-		const createTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start,
-                                                           stop, at, duration, description, tags)
-                                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
-		const timeEntryValues = [
-			timeEntryData.pid,
-			timeEntryData.wid,
-			timeEntryData.tid,
-			timeEntryData.created_with,
-			timeEntryData.billable,
-			timeEntryData.duronly,
-			timeEntryData.start,
-			timeEntryData.stop,
-			timeEntryData.at,
-			timeEntryData.duration,
-			timeEntryData.description,
-			timeEntryData.tags
-		];
-		await pool.query(createTimeEntryQuery, timeEntryValues);
-
-		const projectData = {
-			name: faker.random.words(),
-			wid: faker.random.number(100),
-			cid: faker.random.number(100),
-			active: faker.random.boolean(),
-			is_private: faker.random.boolean(),
-			template: faker.random.boolean(),
-			template_id: faker.random.number(100),
-			billable: faker.random.boolean(),
-			auto_estimates: faker.random.boolean(),
-			estimated_hours: faker.random.number(100),
-			at: faker.date.future(0.1),
-			color: faker.random.number(100).toString(),
-			rate: faker.random.float()
-		};
-
-		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
-                                                     billable, auto_estimates, estimated_hours, at, color, rate)
-                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
-		const projectValues = [
-			projectData.name,
-			projectData.wid,
-			projectData.cid,
-			projectData.active,
-			projectData.is_private,
-			projectData.template,
-			projectData.template_id,
-			projectData.billable,
-			projectData.auto_estimates,
-			projectData.estimated_hours,
-			projectData.at,
-			projectData.color,
-			projectData.rate
-		];
-		await pool.query(createProjectQuery, projectValues);
-
 		const userData = {
 			api_token: faker.random.word(20, 20),
-			default_wid: faker.random.number(100),
+			default_wid: faker.random.number({ min: 1, max: 10 }),
 			email: faker.internet.email(),
 			fullname: faker.internet.userName(),
 			password: faker.internet.password(),
@@ -326,6 +262,81 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 	}
 
 	for (let i = 0; i < 10; i++) {
+		const workspaceUsersData = {
+			uid: faker.random.number({ min: 1, max: 10 }),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			admin: faker.random.boolean(),
+			active: faker.random.boolean(),
+			invite_url: faker.internet.url()
+		};
+		const createWorkspaceUsersQuery = `INSERT INTO workspace_users(uid, wid, admin, active, invite_url)
+                                       VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+		const workspaceUsersTableValues = [
+			workspaceUsersData.uid,
+			workspaceUsersData.wid,
+			workspaceUsersData.admin,
+			workspaceUsersData.active,
+			workspaceUsersData.invite_url
+		];
+		await pool.query(createWorkspaceUsersQuery, workspaceUsersTableValues);
+	}
+
+	for (let i = 0; i < 10; i++) {
+		const clientsData = {
+			name: faker.random.word(),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			notes: faker.random.words(),
+			at: faker.date.future(0.1)
+		};
+		const createClientQuery = `INSERT INTO clients(name, wid, notes, at)
+                               VALUES ($1, $2, $3, $4) RETURNING *`;
+		const clientTableValues = [
+			clientsData.name,
+			clientsData.wid,
+			clientsData.notes,
+			clientsData.at
+		];
+		await pool.query(createClientQuery, clientTableValues);
+	}
+
+	for (let i = 0; i < 10; i++) {
+		const projectData = {
+			name: faker.random.words(),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			cid: faker.random.number({ min: 1, max: 10 }),
+			active: faker.random.boolean(),
+			is_private: faker.random.boolean(),
+			template: faker.random.boolean(),
+			template_id: faker.random.number(100),
+			billable: faker.random.boolean(),
+			auto_estimates: faker.random.boolean(),
+			estimated_hours: faker.random.number(100),
+			at: faker.date.future(0.1),
+			color: faker.random.number(100).toString(),
+			rate: faker.random.float()
+		};
+		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
+                                                     billable, auto_estimates, estimated_hours, at, color, rate)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
+		const projectValues = [
+			projectData.name,
+			projectData.wid,
+			projectData.cid,
+			projectData.active,
+			projectData.is_private,
+			projectData.template,
+			projectData.template_id,
+			projectData.billable,
+			projectData.auto_estimates,
+			projectData.estimated_hours,
+			projectData.at,
+			projectData.color,
+			projectData.rate
+		];
+		await pool.query(createProjectQuery, projectValues);
+	}
+
+	for (let i = 0; i < 10; i++) {
 		const projectUsersData = {
 			pid: faker.random.number({ min: 1, max: 10 }),
 			uid: faker.random.number({ min: 1, max: 10 }),
@@ -345,51 +356,21 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 			projectUsersData.at
 		];
 		await pool.query(createProjectUsersQuery, projectUsersValues);
+	}
 
-		const workspaceUsersData = {
-			uid: faker.random.number({ min: 1, max: 10 }),
-			wid: faker.random.number({ min: 1, max: 10 }),
-			admin: faker.random.boolean(),
-			active: faker.random.boolean(),
-			invite_url: faker.internet.url()
-		};
-		const createWorkspaceUsersQuery = `INSERT INTO workspace_users(uid, wid, admin, active, invite_url)
-                                       VALUES ($1, $2, $3, $4, $5) RETURNING *`;
-		const workspaceUsersTableValues = [
-			workspaceUsersData.uid,
-			workspaceUsersData.wid,
-			workspaceUsersData.admin,
-			workspaceUsersData.active,
-			workspaceUsersData.invite_url
-		];
-		await pool.query(createWorkspaceUsersQuery, workspaceUsersTableValues);
-
-		const clientsData = {
-			name: faker.random.word(),
-			wid: faker.random.number({ min: 1, max: 10 }),
-			notes: faker.random.words(),
-			at: faker.date.future(0.1)
-		};
-		const createClientQuery = `INSERT INTO clients(name, wid, notes, at)
-                               VALUES ($1, $2, $3, $4) RETURNING *`;
-		const clientTableValues = [
-			clientsData.name,
-			clientsData.wid,
-			clientsData.notes,
-			clientsData.at
-		];
-		await pool.query(createClientQuery, clientTableValues);
-
+	for (let i = 0; i < 10; i++) {
 		const groupData = {
 			name: faker.random.word(),
 			wid: faker.random.number({ min: 1, max: 10 }),
 			at: faker.date.future(0.1)
 		};
 		const createGroupQuery = `INSERT INTO groups(name, wid, at)
-                             VALUES ($1, $2, $3) RETURNING *`;
+                              VALUES ($1, $2, $3) RETURNING *`;
 		const groupValues = [groupData.name, groupData.wid, groupData.at];
 		await pool.query(createGroupQuery, groupValues);
+	}
 
+	for (let i = 0; i < 10; i++) {
 		const taskData = {
 			name: faker.random.word(),
 			pid: faker.random.number({ min: 1, max: 10 }),
@@ -413,7 +394,9 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
 			taskData.tracked_seconds
 		];
 		await pool.query(createTaskQuery, taskValues);
+	}
 
+	for (let i = 0; i < 10; i++) {
 		const tagsData = {
 			name: faker.random.word(),
 			wid: faker.random.number({ min: 1, max: 10 })
@@ -422,6 +405,42 @@ const tasksTable = `CREATE TABLE IF NOT EXISTS
                              VALUES ($1, $2) RETURNING *`;
 		const tagsValues = [tagsData.name, tagsData.wid];
 		await pool.query(createTagsQuery, tagsValues);
+	}
+
+	for (let i = 0; i < 10; i++) {
+		const timeEntryData = {
+			pid: faker.random.number({ min: 1, max: 10 }),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			tid: faker.random.number({ min: 1, max: 10 }),
+			tags: [faker.random.word(), faker.random.word()],
+			created_with: faker.random.word(),
+			billable: faker.random.boolean(),
+			duronly: faker.random.boolean(),
+			start: faker.date.future(0.1),
+			stop: faker.date.future(0.1),
+			at: faker.date.future(0.1),
+			duration: faker.random.number({ min: 100, max: 1000 }),
+			description: faker.random.words()
+		};
+
+		const createTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start,
+                                                           stop, at, duration, description, tags)
+                                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
+		const timeEntryValues = [
+			timeEntryData.pid,
+			timeEntryData.wid,
+			timeEntryData.tid,
+			timeEntryData.created_with,
+			timeEntryData.billable,
+			timeEntryData.duronly,
+			timeEntryData.start,
+			timeEntryData.stop,
+			timeEntryData.at,
+			timeEntryData.duration,
+			timeEntryData.description,
+			timeEntryData.tags
+		];
+		await pool.query(createTimeEntryQuery, timeEntryValues);
 	}
 
 	await pool.end();
