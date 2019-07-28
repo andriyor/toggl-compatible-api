@@ -138,6 +138,23 @@ const groupsTable = `CREATE TABLE IF NOT EXISTS
                          unique (name, wid)
                      )`;
 
+const tasksTable = `CREATE TABLE IF NOT EXISTS
+                        tasks
+                    (
+                        id                SERIAL PRIMARY KEY,
+                        name              VARCHAR(128) NOT NULL,
+                        pid               INT          NOT NULL,
+                        FOREIGN KEY (wid) REFERENCES projects (id),
+                        wid               INT          NOT NULL,
+                        FOREIGN KEY (wid) REFERENCES workspaces (id),
+                        uid               INT          NOT NULL,
+                        FOREIGN KEY (wid) REFERENCES users (id),
+                        estimated_seconds INT,
+                        active            BOOLEAN,
+                        at                TIMESTAMP,
+                        tracked_seconds   INT
+                    )`;
+
 (async () => {
 	await pool.query(timeEntriesTable);
 	await pool.query(projectsTable);
@@ -148,6 +165,7 @@ const groupsTable = `CREATE TABLE IF NOT EXISTS
 	await pool.query(workspaceUsersTable);
 	await pool.query(clientsTable);
 	await pool.query(groupsTable);
+	await pool.query(tasksTable);
 
 	for (let i = 0; i < 10; i++) {
 		const timeEntryData = {
@@ -379,6 +397,30 @@ const groupsTable = `CREATE TABLE IF NOT EXISTS
                              VALUES ($1, $2, $3) RETURNING *`;
 		const groupValues = [groupData.name, groupData.wid, groupData.at];
 		await pool.query(createTagsQuery, groupValues);
+
+		const taskData = {
+			name: faker.random.word(),
+			pid: faker.random.number({ min: 1, max: 10 }),
+			wid: faker.random.number({ min: 1, max: 10 }),
+			uid: faker.random.number({ min: 1, max: 10 }),
+			estimated_seconds: faker.random.number(),
+			active: faker.random.boolean(),
+			at: faker.date.future(0.1),
+			tracked_seconds: faker.random.number()
+		};
+		const createTaskQuery = `INSERT INTO tasks(name, pid, wid, uid, estimated_seconds, active, at, tracked_seconds)
+                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
+		const taskValues = [
+			taskData.name,
+			taskData.pid,
+			taskData.wid,
+			taskData.uid,
+			taskData.estimated_seconds,
+			taskData.active,
+			taskData.at,
+			taskData.tracked_seconds
+		];
+		await pool.query(createTaskQuery, taskValues);
 	}
 
 	await pool.end();
