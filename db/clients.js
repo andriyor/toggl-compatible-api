@@ -16,11 +16,7 @@ class Clients {
 	}
 
 	static getValues(client, olClient) {
-		return [
-			client.name || olClient.name,
-			client.notes || olClient.notes,
-			new Date(),
-		];
+		return [client.name || olClient.name, client.notes || olClient.notes, new Date()];
 	}
 
 	static async updateOne(clientId, client) {
@@ -33,10 +29,7 @@ class Clients {
                                        at=$3
                                    WHERE id = $4 RETURNING *`;
 		const clientValues = Clients.getValues(client, result.rows[0]);
-		const { rows } = await pool.query(updateOneQuery, [
-			...clientValues,
-			clientId
-		]);
+		const { rows } = await pool.query(updateOneQuery, [...clientValues, clientId]);
 		return rows[0];
 	}
 
@@ -48,10 +41,14 @@ class Clients {
 	static async getClientProjects(clientId) {
 		const query = "SELECT * FROM projects WHERE cid = $1";
 		const { rows } = await pool.query(query, [clientId]);
-		console.log(rows);
 		return rows;
 	}
 
+	static async getClientProjectsByActive(clientId, active=true) {
+		const query = "SELECT * FROM projects WHERE cid = $1 AND active = $2";
+		const { rows } = await pool.query(query, [clientId, active]);
+		return rows;
+	}
 }
 
 module.exports = {

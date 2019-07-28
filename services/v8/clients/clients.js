@@ -117,6 +117,12 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.get("/:client_id/projects", clientProjectsSchema, async request => {
-		return  await Clients.getClientProjects(request.params.client_id);
+		if (request.query.active === "both") {
+			return await Clients.getClientProjects(request.params.client_id);
+		}
+		return await Clients.getClientProjectsByActive(
+			request.params.client_id,
+			request.query.active
+		);
 	});
 };
