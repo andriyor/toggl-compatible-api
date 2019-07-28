@@ -45,6 +45,13 @@ class Clients {
 		await pool.query(query, [clientId]);
 	}
 
+	static async getClientProjects(clientId) {
+		const query = "SELECT * FROM projects WHERE cid = $1";
+		const { rows } = await pool.query(query, [clientId]);
+		console.log(rows);
+		return rows;
+	}
+
 }
 
 module.exports = {

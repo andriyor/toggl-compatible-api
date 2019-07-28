@@ -1,5 +1,6 @@
 const { Clients } = require("../../../db/clients");
 const { responseClient } = require("../../../schema/schema");
+const { responseProject } = require("../../../schema/schema");
 
 const successfulResponse = {
 	200: {
@@ -94,5 +95,28 @@ module.exports = async fastify => {
 	fastify.delete("/:client_id", clientDeleteSchema, async request => {
 		await Clients.destroy(request.params.client_id);
 		return "OK";
+	});
+
+	const clientProjectsSchema = {
+		schema: {
+			tags: ["clients"],
+			summary: "Get client projects",
+			params: clientIdParam,
+			querystring: {
+				active: { type: "string" }
+			},
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseProject
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:client_id/projects", clientProjectsSchema, async request => {
+		return  await Clients.getClientProjects(request.params.client_id);
 	});
 };
