@@ -6,6 +6,7 @@ const { responseUser } = require("../../../schema/schema");
 const { responseClient } = require("../../../schema/schema");
 const { responseGroup } = require("../../../schema/schema");
 const { responseProject } = require("../../../schema/schema");
+const { responseTask } = require("../../../schema/schema");
 
 const responseWorkspace = {
 	id: {
@@ -245,6 +246,35 @@ module.exports = async fastify => {
 			return await Workspaces.getWorkspaceProjects(request.params.workspace_id);
 		}
 		return await Workspaces.getWorkspaceProjectsByActive(
+			request.params.workspace_id,
+			request.query.active
+		);
+	});
+
+	const getWorkspaceTasks = {
+		schema: {
+			tags: ["workspaces"],
+			summary: "Get workspace tasks",
+			params: workspaceIdParam,
+			querystring: {
+				active: { type: "string" }
+			},
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseTask
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:workspace_id/tasks", getWorkspaceTasks, async request => {
+		if (request.query.active === "both") {
+			return await Workspaces.getWorkspaceTasks(request.params.workspace_id);
+		}
+		return await Workspaces.getWorkspaceTasksByActive(
 			request.params.workspace_id,
 			request.query.active
 		);

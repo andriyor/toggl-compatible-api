@@ -1,34 +1,5 @@
 const { Tasks } = require("../../../db/tasks");
-
-const responseTask = {
-	id: {
-		type: "integer"
-	},
-	name: {
-		type: "string"
-	},
-	wid: {
-		type: "integer"
-	},
-	pid: {
-		type: "integer"
-	},
-	uid: {
-		type: "integer"
-	},
-	estimated_seconds: {
-		type: "integer"
-	},
-	active: {
-		type: "boolean"
-	},
-	at: {
-		type: "string"
-	},
-	tracked_seconds: {
-		type: "integer"
-	}
-};
+const { responseTask } = require("../../../schema/schema");
 
 const successfulResponse = {
 	200: {

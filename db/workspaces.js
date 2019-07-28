@@ -128,6 +128,18 @@ class Workspaces {
 		return rows;
 	}
 
+	static async getWorkspaceTasksByActive(workspaceId, active=true) {
+		const query = "SELECT * FROM tasks WHERE wid = $1 AND active = $2";
+		const { rows } = await pool.query(query, [workspaceId, active]);
+		return rows;
+	}
+
+	static async getWorkspaceTasks(workspaceId) {
+		const query = "SELECT * FROM tasks WHERE wid = $1";
+		const { rows } = await pool.query(query, [workspaceId]);
+		return rows;
+	}
+
 }
 
 module.exports = {
