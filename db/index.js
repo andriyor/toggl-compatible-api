@@ -20,6 +20,12 @@ const usersTable = `CREATE TABLE IF NOT EXISTS
                         image_url                 VARCHAR(512),
                         sidebar_piechart          BOOLEAN,
                         at                        TIMESTAMP,
+                        send_product_emails BOOLEAN,
+                        send_weekly_report BOOLEAN,
+                        send_timer_notifications BOOLEAN,
+                        openid_enabled BOOLEAN,
+                        timezone VARCHAR(128),
+                        
                         retention                 INT,
                         record_timeline           BOOLEAN,
                         render_timeline           BOOLEAN,
@@ -191,6 +197,11 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 			image_url: faker.image.imageUrl(),
 			sidebar_piechart: faker.random.boolean(),
 			at: faker.date.future(0.1),
+			send_product_emails: faker.random.boolean(),
+			send_weekly_report: faker.random.boolean(),
+			send_timer_notifications: faker.random.boolean(),
+			openid_enabled: faker.random.boolean(),
+			timezone: faker.random.word(),
 			retention: faker.random.number(100),
 			record_timeline: faker.random.boolean(),
 			render_timeline: faker.random.boolean(),
@@ -200,10 +211,12 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 		const createUserQuery = `INSERT INTO users(api_token, default_wid, email, fullname, password,
                                                jquery_timeofday_format, jquery_date_format, timeofday_format,
                                                date_format, store_start_and_stop_time, beginning_of_week, language,
-                                               image_url, sidebar_piechart, at, retention, record_timeline,
-                                               render_timeline, timeline_enabled, timeline_experiment)
+                                               image_url, sidebar_piechart, at, send_product_emails,
+                                               send_weekly_report, send_timer_notifications, openid_enabled,
+                                               timezone, retention, record_timeline, render_timeline, timeline_enabled, 
+                  														 timeline_experiment)
                              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-                                     $18, $19, $20) RETURNING *`;
+                                     $18, $19, $20, $21, $22, $23, $24, $25) RETURNING *`;
 		const userValues = [
 			userData.api_token,
 			userData.default_wid,
@@ -220,6 +233,11 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 			userData.image_url,
 			userData.sidebar_piechart,
 			userData.at,
+			userData.send_product_emails,
+			userData.send_weekly_report,
+			userData.send_timer_notifications,
+			userData.openid_enabled,
+			userData.timezone,
 			userData.retention,
 			userData.record_timeline,
 			userData.render_timeline,
