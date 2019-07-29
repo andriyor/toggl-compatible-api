@@ -1,28 +1,5 @@
 const { ProjectUsers } = require("../../../db/projectUsers");
-
-const responseProjectUsers = {
-	id: {
-		type: "integer"
-	},
-	pid: {
-		type: "integer"
-	},
-	uid: {
-		type: "integer"
-	},
-	wid: {
-		type: "integer"
-	},
-	manager: {
-		type: "boolean"
-	},
-	rate: {
-		type: "integer"
-	},
-	fullname: {
-		type: "string"
-	}
-};
+const { responseProjectUsers } = require("../../../schema/schema");
 
 const successfulResponse = {
 	200: {
@@ -70,8 +47,11 @@ module.exports = async fastify => {
 			}
 		}
 	};
-	const { wid, pid, uid, ...projectUserProjectPut} = projectUserPost;
-	const projectUserProjectPutField = {...{fields: {type: "string"}},  ...projectUserProjectPut};
+	const { wid, pid, uid, ...projectUserProjectPut } = projectUserPost;
+	const projectUserProjectPutField = {
+		...{ fields: { type: "string" } },
+		...projectUserProjectPut
+	};
 	const projectUserPutSchema = {
 		schema: {
 			tags: ["project-users"],
@@ -90,7 +70,10 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.put("/:project_user_id", projectUserPutSchema, async request => {
-		const projectUser = await ProjectUsers.updateOne(request.params.project_user_id, request.body.project_user);
+		const projectUser = await ProjectUsers.updateOne(
+			request.params.project_user_id,
+			request.body.project_user
+		);
 		return { data: projectUser };
 	});
 
@@ -102,7 +85,7 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.delete("/:project_user_id", projectUsersDeleteSchema, async request => {
-		const projectUsersIds = request.params.project_user_id.split(',');
+		const projectUsersIds = request.params.project_user_id.split(",");
 		for (projectUsersId of projectUsersIds) {
 			await ProjectUsers.destroy(projectUsersId);
 		}

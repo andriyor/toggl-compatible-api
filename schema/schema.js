@@ -175,11 +175,33 @@ const responseTag = {
 	}
 };
 
+const responseProjectUsers = {
+	id: {
+		type: "integer"
+	},
+	pid: {
+		type: "integer"
+	},
+	uid: {
+		type: "integer"
+	},
+	wid: {
+		type: "integer"
+	},
+	manager: {
+		type: "boolean"
+	},
+	rate: {
+		type: "integer"
+	}
+};
+
 module.exports = {
 	responseUser,
 	responseClient,
 	responseGroup,
 	responseProject,
 	responseTask,
-	responseTag
+	responseTag,
+	responseProjectUsers
 };

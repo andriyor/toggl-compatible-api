@@ -1,6 +1,8 @@
 const { Pool } = require("pg");
 
 const { responseProject } = require("../../../schema/schema");
+const { responseProjectUsers } = require("../../../schema/schema");
+const { responseTask } = require("../../../schema/schema");
 
 const config = {
 	user: "postgres", //this is the db user credential
@@ -12,27 +14,6 @@ const config = {
 };
 
 const pool = new Pool(config);
-
-const responseProjectUsers = {
-	id: {
-		type: "integer"
-	},
-	pid: {
-		type: "integer"
-	},
-	uid: {
-		type: "integer"
-	},
-	wid: {
-		type: "integer"
-	},
-	manager: {
-		type: "boolean"
-	},
-	rate: {
-		type: "integer"
-	}
-};
 
 const successfulResponse = {
 	200: {
@@ -117,7 +98,7 @@ module.exports = async fastify => {
 			const { rows } = await pool.query(createProjectQuery, projectValues);
 			return { data: rows[0] };
 		} catch (e) {
-			if (e.code === '23505') {
+			if (e.code === "23505") {
 				reply.code(400).send("Name has already been taken");
 			}
 		}
@@ -133,9 +114,7 @@ module.exports = async fastify => {
 	};
 	fastify.put("/:project_id", updateProjectSchema, async request => {
 		const findOneProjectQuery = "SELECT * FROM projects WHERE id = $1";
-		const result = await pool.query(findOneProjectQuery, [
-			request.params.project_id
-		]);
+		const result = await pool.query(findOneProjectQuery, [request.params.project_id]);
 
 		const updateOneProjectQuery = `UPDATE projects
                                    SET name=$1,
@@ -195,4 +174,26 @@ module.exports = async fastify => {
 			return rows;
 		}
 	);
+
+	const projectTasksByProjectIdSchema = {
+		schema: {
+			tags: ["projects"],
+			summary: "Get project tasks",
+			params: projectIdParam,
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: responseTask
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:project_id/tasks", projectTasksByProjectIdSchema, async request => {
+		const query = "SELECT * FROM tasks WHERE pid = $1";
+		const { rows } = await pool.query(query, [request.params.project_id]);
+		return rows;
+	});
 };
