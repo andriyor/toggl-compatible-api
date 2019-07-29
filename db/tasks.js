@@ -1,4 +1,5 @@
 const { pool } = require("./db");
+const { TimeEntries } = require("./timeEntries");
 
 class Tasks {
 	static async create(task) {
@@ -57,6 +58,7 @@ class Tasks {
 	}
 
 	static async destroy(taskId) {
+		await TimeEntries.unsetTask(taskId);
 		const query = "DELETE FROM tasks WHERE id = $1;";
 		await pool.query(query, [taskId]);
 	}

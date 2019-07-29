@@ -34,6 +34,8 @@ class Clients {
 	}
 
 	static async destroy(clientId) {
+		const projectQuery = "UPDATe projects SET cid=NULL WHERE cid = $1;";
+		await pool.query(projectQuery, [clientId]);
 		const query = "DELETE FROM clients WHERE id = $1;";
 		await pool.query(query, [clientId]);
 	}

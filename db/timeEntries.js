@@ -6,9 +6,14 @@ class TimeEntries {
 		await pool.query(query, [timeEntryId]);
 	}
 
-	static async destroyByProjectId(projectId) {
-		const query = "DELETE FROM time_entries WHERE pid = $1;";
+	static async unsetProject(projectId) {
+		const query = "UPDATE time_entries SET pid=NULL WHERE pid = $1;";
 		await pool.query(query, [projectId]);
+	}
+
+	static async unsetTask(taskId) {
+		const query = "UPDATE time_entries SET tid=NULL WHERE tid = $1;";
+		await pool.query(query, [taskId]);
 	}
 }
 
