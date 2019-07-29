@@ -102,7 +102,10 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.delete("/:project_user_id", projectUsersDeleteSchema, async request => {
-		await ProjectUsers.destroy(request.params.project_user_id);
+		const projectUsersIds = request.params.project_user_id.split(',');
+		for (projectUsersId of projectUsersIds) {
+			await ProjectUsers.destroy(projectUsersId);
+		}
 		return "OK";
 	});
 };
