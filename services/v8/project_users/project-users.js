@@ -35,7 +35,7 @@ const successfulResponse = {
 };
 
 module.exports = async fastify => {
-	const { id, at, ...projectUserProjectPost } = responseProjectUsers;
+	const { id, at, ...projectUserPost } = responseProjectUsers;
 	const projectUserPostPutSchema = {
 		schema: {
 			tags: ["project-users"],
@@ -45,7 +45,7 @@ module.exports = async fastify => {
 				properties: {
 					project_user: {
 						type: "object",
-						properties: projectUserProjectPost,
+						properties: projectUserPost,
 						required: ["pid", "uid"]
 					}
 				}
@@ -55,6 +55,38 @@ module.exports = async fastify => {
 	};
 	fastify.post("/", projectUserPostPutSchema, async request => {
 		const projectUser = await ProjectUsers.create(request.body.project_user);
+		return { data: projectUser };
+	});
+
+	const clientIdParam = {
+		type: "object",
+		properties: {
+			project_user_id: {
+				type: "string",
+				description: "project user id"
+			}
+		}
+	};
+	const { wid, pid, uid, ...projectUserProjectPut } = projectUserPost;
+	const projectUserPutSchema = {
+		schema: {
+			tags: ["project-users"],
+			summary: "Update a project user",
+			body: {
+				type: "object",
+				properties: {
+					project_user: {
+						type: "object",
+						properties: projectUserProjectPut
+					}
+				}
+			},
+			params: clientIdParam,
+			response: successfulResponse
+		}
+	};
+	fastify.put("/:project_user_id", projectUserPutSchema, async request => {
+		const projectUser = await ProjectUsers.updateOne(request.params.project_user_id, request.body.project_user);
 		return { data: projectUser };
 	});
 };
