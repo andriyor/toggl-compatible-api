@@ -1,4 +1,5 @@
 const { Pool } = require("pg");
+const { TimeEntries } = require("../../../db/timeEntries");
 
 const config = {
 	user: "postgres", //this is the db user credential
@@ -275,8 +276,7 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.delete("/:time_entry_id", timeEntryDeleteSchema, async request => {
-		const query = "DELETE FROM time_entries WHERE id = $1;";
-		await pool.query(query, [request.params.time_entry_id]);
+		await TimeEntries.destroy(request.params.time_entry_id);
 		return "OK";
 	});
 

@@ -1,4 +1,5 @@
 const { Pool } = require("pg");
+const { Projects } = require("../../../db/projects");
 
 const { responseProject } = require("../../../schema/schema");
 const { responseProjectUsers } = require("../../../schema/schema");
@@ -147,8 +148,10 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.delete("/:project_id", projectDeleteSchema, async request => {
-		const query = "DELETE FROM projects WHERE id = $1;";
-		await pool.query(query, [request.params.project_id]);
+		const projectIds = request.params.project_id.split(",");
+		for (projectId of projectIds) {
+			await Projects.destroy(projectId);
+		}
 		return "OK";
 	});
 

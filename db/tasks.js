@@ -60,6 +60,11 @@ class Tasks {
 		const query = "DELETE FROM tasks WHERE id = $1;";
 		await pool.query(query, [taskId]);
 	}
+
+	static async destroyByProjectId(projectId) {
+		const query = "DELETE FROM tasks WHERE pid = $1;";
+		await pool.query(query, [projectId]);
+	}
 }
 
 module.exports = {
