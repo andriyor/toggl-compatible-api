@@ -140,6 +140,12 @@ class Workspaces {
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
+
+	static async getWorkspaceProjectUsers(workspaceId) {
+		const query = "SELECT * FROM project_users WHERE wid = $1";
+		const { rows } = await pool.query(query, [workspaceId]);
+		return rows;
+	}
 }
 
 module.exports = {
