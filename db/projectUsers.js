@@ -28,6 +28,12 @@ class ProjectUsers {
 		];
 	}
 
+	static async getById(projectUserId) {
+		const query = "SELECT * FROM project_users WHERE id = $1";
+		const { rows } = await pool.query(query, [projectUserId]);
+		return rows[0];
+	}
+
 	static async updateOne(projectUserId, projectUser) {
 		const findOneQuery = "SELECT * FROM project_users WHERE id = $1";
 		const result = await pool.query(findOneQuery, [projectUserId]);
@@ -36,9 +42,22 @@ class ProjectUsers {
                             SET manager=$1,
                                 rate=$2,
                                 at=$3
-                            WHERE id = $4 RETURNING *`;
+                            WHERE id = $4`;
 		const values = ProjectUsers.getValuesForUpdate(projectUser, result.rows[0]);
-		const { rows } = await pool.query(updateOneQuery, [...values, projectUserId]);
+		await pool.query(updateOneQuery, [...values, projectUserId]);
+		if (projectUser.fields === "fullname") {
+			return await ProjectUsers.getWithFullname(projectUserId);
+		} else {
+			return await ProjectUsers.getById(projectUserId);
+		}
+	}
+
+	static async getWithFullname(projectUsersId) {
+		const findOneQuery = `SELECT project_users.*, users.fullname
+                          FROM project_users
+                                   right join users on Users.id = project_users.uid
+                          WHERE project_users.id = $1`;
+		const { rows } = await pool.query(findOneQuery, [projectUsersId]);
 		return rows[0];
 	}
 }

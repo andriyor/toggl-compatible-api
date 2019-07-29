@@ -18,6 +18,9 @@ const responseProjectUsers = {
 	},
 	rate: {
 		type: "integer"
+	},
+	fullname: {
+		type: "string"
 	}
 };
 
@@ -67,7 +70,8 @@ module.exports = async fastify => {
 			}
 		}
 	};
-	const { wid, pid, uid, ...projectUserProjectPut } = projectUserPost;
+	const { wid, pid, uid, ...projectUserProjectPut} = projectUserPost;
+	const projectUserProjectPutField = {...{fields: {type: "string"}},  ...projectUserProjectPut};
 	const projectUserPutSchema = {
 		schema: {
 			tags: ["project-users"],
@@ -77,7 +81,7 @@ module.exports = async fastify => {
 				properties: {
 					project_user: {
 						type: "object",
-						properties: projectUserProjectPut
+						properties: projectUserProjectPutField
 					}
 				}
 			},
