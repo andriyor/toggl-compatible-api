@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Welcome",
+  "definitions": {
+    "Welcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "uid": {
+          "type": "integer"
+        },
+        "wid": {
+          "type": "integer"
+        },
+        "admin": {
+          "type": "boolean"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string"
+        },
+        "at": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "invite_url": {
+          "type": "string",
+          "format": "uri",
+          "qt-uri-protocols": [
+            "https"
+          ]
+        }
+      },
+      "required": [
+        "active",
+        "admin",
+        "at",
+        "email",
+        "id",
+        "invite_url",
+        "name",
+        "uid",
+        "wid"
+      ],
+      "title": "Welcome"
+    }
+  }
+}

@@ -22,9 +22,9 @@ class Workspaces {
 		];
 	}
 
-	static async updateOne(project, project_id) {
-		const findOneProjectQuery = "SELECT * FROM projects WHERE id = $1";
-		const result = await pool.query(findOneProjectQuery, [project_id]);
+	static async updateOne(workspace, workspace_id) {
+		const findOneWorkspaceQuery = "SELECT * FROM projects WHERE id = $1";
+		const result = await pool.query(findOneWorkspaceQuery, [workspace_id]);
 
 		const updateOneWorkspaceQuery = `UPDATE workspaces
                                      SET name=$1,
@@ -38,8 +38,8 @@ class Workspaces {
                                          at=$9,
                                          logo_url=$10
                                      WHERE id = $11`;
-		const workspaceValues = Workspaces.getValues(project, result.rows[0]);
-		const { rows } = await pool.query(updateOneWorkspaceQuery, [...workspaceValues, project_id]);
+		const workspaceValues = Workspaces.getValues(workspace, result.rows[0]);
+		const { rows } = await pool.query(updateOneWorkspaceQuery, [...workspaceValues, workspace_id]);
 		return rows[0];
 	}
 

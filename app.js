@@ -24,7 +24,8 @@ module.exports = function(fastify, opts, next) {
 				{ name: "workspaces", description: "Workspaces" },
 				{ name: "clients", description: "Clients" },
 				{ name: "groups", description: "Groups" },
-				{ name: "tasks", description: "Tasks" }
+				{ name: "tasks", description: "Tasks" },
+				{ name: "workspace-users", description: "Workspace Users" }
 			],
 			securityDefinitions: {
 				basicAuth: {
