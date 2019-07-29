@@ -61,7 +61,7 @@ module.exports = async fastify => {
 		return { data: projectUser };
 	});
 
-	const clientIdParam = {
+	const projectUsersIdParam = {
 		type: "object",
 		properties: {
 			project_user_id: {
@@ -85,12 +85,24 @@ module.exports = async fastify => {
 					}
 				}
 			},
-			params: clientIdParam,
+			params: projectUsersIdParam,
 			response: successfulResponse
 		}
 	};
 	fastify.put("/:project_user_id", projectUserPutSchema, async request => {
 		const projectUser = await ProjectUsers.updateOne(request.params.project_user_id, request.body.project_user);
 		return { data: projectUser };
+	});
+
+	const projectUsersDeleteSchema = {
+		schema: {
+			tags: ["project-users"],
+			summary: "Delete a project user",
+			params: projectUsersIdParam
+		}
+	};
+	fastify.delete("/:project_user_id", projectUsersDeleteSchema, async request => {
+		await ProjectUsers.destroy(request.params.project_user_id);
+		return "OK";
 	});
 };

@@ -60,6 +60,11 @@ class ProjectUsers {
 		const { rows } = await pool.query(findOneQuery, [projectUsersId]);
 		return rows[0];
 	}
+
+	static async destroy(projectUsersId) {
+		const query = "DELETE FROM project_users WHERE id = $1;";
+		await pool.query(query, [projectUsersId]);
+	}
 }
 
 module.exports = {
