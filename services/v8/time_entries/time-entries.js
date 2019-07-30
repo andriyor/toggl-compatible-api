@@ -1,4 +1,6 @@
+const auth = require("basic-auth");
 const { TimeEntries } = require("../../../db/timeEntries");
+const { Users } = require("../../../db/me");
 
 const responseTimeEntries = {
 	id: {
@@ -104,7 +106,9 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.post("/", timeEntriesPostPutSchema, async request => {
-		const timeEntry = await TimeEntries.create(request.body.time_entry);
+		const currentUser = auth.parse(request.headers.authorization);
+		const defaultWid = await Users.getDefaultWorkspaceByUserName(currentUser.name);
+		const timeEntry = await TimeEntries.create(request.body.time_entry, defaultWid);
 		return { data: timeEntry };
 	});
 

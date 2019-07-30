@@ -24,13 +24,9 @@ module.exports = async fastify => {
 			response: successfulResponse
 		}
 	};
-	fastify.get("/", userSchema, async (request, reply) => {
+	fastify.get("/", userSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
-		const user = await Users.getName(currentUser.name);
-		if (!user || user.password !== currentUser.password) {
-			reply.code(403).send();
-		} else {
-			return { data: user };
-		}
+		const user = await Users.getByName(currentUser.name);
+		return { data: user };
 	});
 };

@@ -1,8 +1,18 @@
 const path = require("path");
 const AutoLoad = require("fastify-autoload");
+const { Users } = require("./db/me");
 
 module.exports = function(fastify, opts, next) {
 	// Place here your custom code!
+
+	const authenticate = {realm: 'Westeros'};
+	fastify.register(require('fastify-basic-auth'), { validate, authenticate });
+	async function validate (username, password) {
+		const user = await Users.getByName(username);
+		if (!user || user.password !== password) {
+			return new Error("Unauthorized");
+		}
+	}
 
 	fastify.register(require("fastify-swagger"), {
 		swagger: {
@@ -63,6 +73,10 @@ module.exports = function(fastify, opts, next) {
 	fastify.register(AutoLoad, {
 		dir: path.join(__dirname, "services/v9"),
 		options: Object.assign({}, opts)
+	});
+
+	fastify.after(() => {
+		fastify.addHook('preHandler', fastify.basicAuth);
 	});
 
 	// Make sure to call next when done
