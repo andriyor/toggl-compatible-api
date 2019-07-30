@@ -23,6 +23,11 @@ class WorkspaceUsers {
 		const { rows } = await pool.query(updateOneWorkspaceQuery, [...workspaceUsersValues, workspaceUsersId]);
 		return rows[0];
 	}
+
+	static async destroy(workspaceUsersId) {
+		const query = "DELETE FROM workspace_users WHERE id = $1;";
+		await pool.query(query, [workspaceUsersId]);
+	}
 }
 
 module.exports = {

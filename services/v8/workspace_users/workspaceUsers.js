@@ -66,4 +66,16 @@ module.exports = async fastify => {
 		const task = await WorkspaceUsers.updateOne(request.params.workspace_user_id, request.body.workspace_user);
 		return { data: task };
 	});
+
+	const WorkspaceUsersDeleteSchema = {
+		schema: {
+			tags: ["workspace-users"],
+			summary: "Delete workspace user",
+			params: workspaceUsersIdParam
+		}
+	};
+	fastify.delete("/:workspace_user_id", WorkspaceUsersDeleteSchema, async request => {
+		await WorkspaceUsers.destroy(request.params.workspace_user_id);
+		return "OK";
+	});
 };
