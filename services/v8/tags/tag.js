@@ -1,17 +1,6 @@
-const { Pool } = require("pg");
+const { Tags } = require("../../../db/tags");
 
 const { responseTag } = require("../../../schema/schema");
-
-const config = {
-	user: "postgres", //this is the db user credential
-	database: "toggl_like",
-	password: "18091997",
-	port: 5432,
-	max: 10, // max number of clients in the pool
-	idleTimeoutMillis: 30000
-};
-
-const pool = new Pool(config);
 
 const successfulResponse = {
 	200: {
@@ -47,12 +36,9 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.post("/", tagPostPutSchema, async (request, reply) => {
-		const createTagQuery = `INSERT INTO tags(name, wid)
-                            VALUES ($1, $2) RETURNING *`;
-		const projectUserValues = [request.body.tag.name, request.body.tag.wid];
 		try {
-			const { rows } = await pool.query(createTagQuery, projectUserValues);
-			return { data: rows[0] };
+			const tag = await Tags.create(request.body.tag);
+			return { data: tag };
 		} catch (e) {
 			if (e.code === "23505") {
 				reply.code(400).send(`Tag already exists: ${request.body.tag.name}`);
@@ -88,12 +74,8 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.put("/:tag_id", updateTagSchema, async request => {
-		const updateOneTagQuery = `UPDATE tags
-                               SET name=$1
-                               WHERE id = $2 RETURNING *`;
-		const tagValues = [request.body.tag.name, request.params.tag_id];
-		const { rows } = await pool.query(updateOneTagQuery, tagValues);
-		return { data: rows[0] };
+		const tag = await Tags.updateOne(request.params.tag_id, request.body.tag);
+		return { data: tag };
 	});
 
 	const projectDeleteSchema = {
@@ -103,9 +85,8 @@ module.exports = async fastify => {
 			params: tagIdParam
 		}
 	};
-	fastify.delete("/:project_id", projectDeleteSchema, async request => {
-		const query = "DELETE FROM tags WHERE id = $1;";
-		await pool.query(query, [request.params.tag_id]);
+	fastify.delete("/:tag_id", projectDeleteSchema, async request => {
+		await Tags.destroy(request.params.tag_id);
 		return "OK";
 	});
 };

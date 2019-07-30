@@ -82,9 +82,8 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.get("/:time_entry_id", timeEntryByIDSchema, async request => {
-		const query = "SELECT * FROM time_entries WHERE id = $1";
-		const { rows } = await pool.query(query, [request.params.time_entry_id]);
-		return { data: rows[0] };
+		const timeEntry = await TimeEntries.getById(request.params.time_entry_id);
+		return { data: timeEntry };
 	});
 
 	const timeEntriesPostPutSchema = {
@@ -105,12 +104,8 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.post("/", timeEntriesPostPutSchema, async request => {
-		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, duronly,
-                                            start, stop, at, duration, description, tags)
-                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`;
-		const values = getValues(request.body.time_entry, {});
-		const { rows } = await pool.query(query, values);
-		return { data: rows[0] };
+		const timeEntry = await TimeEntries.create(request.body.time_entry);
+		return { data: timeEntry };
 	});
 
 	const timeEntriesStartSchema = {
