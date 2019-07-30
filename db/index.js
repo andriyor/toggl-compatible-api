@@ -157,6 +157,8 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
                               FOREIGN KEY (wid) REFERENCES workspaces (id),
                               tid          INT,
                               FOREIGN KEY (tid) REFERENCES tasks (id),
+                              uid          INT,
+                              FOREIGN KEY (uid) REFERENCES users (id),
                               created_with VARCHAR(128),
                               billable     BOOLEAN,
                               duronly      BOOLEAN,
@@ -430,6 +432,7 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 			pid: faker.random.number({ min: 1, max: 10 }),
 			wid: faker.random.number({ min: 1, max: 10 }),
 			tid: faker.random.number({ min: 1, max: 10 }),
+			uid: faker.random.number({ min: 1, max: 10 }),
 			tags: [faker.random.word(), faker.random.word()],
 			created_with: faker.random.word(),
 			billable: faker.random.boolean(),
@@ -441,13 +444,14 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 			description: faker.random.words()
 		};
 
-		const createTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, created_with, billable, duronly, start,
+		const createTimeEntryQuery = `INSERT INTO time_entries(pid, wid, tid, uid, created_with, billable, duronly, start,
                                                            stop, at, duration, description, tags)
-                                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`;
+                                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
 		const timeEntryValues = [
 			timeEntryData.pid,
 			timeEntryData.wid,
 			timeEntryData.tid,
+			timeEntryData.uid,
 			timeEntryData.created_with,
 			timeEntryData.billable,
 			timeEntryData.duronly,

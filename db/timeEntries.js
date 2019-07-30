@@ -34,18 +34,20 @@ class TimeEntries {
 		];
 	}
 
-	static async create(timeEntry, defaultWid) {
-		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start, duration)
-                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
+	static async create(timeEntry, user) {
+		const query = `INSERT INTO time_entries(pid, wid, uid, created_with, billable, description, tags, start, at, duration)
+                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const nowDate = new Date();
 		const duration = -Math.floor(nowDate / 1000);
 		const values = [
 			timeEntry.pid,
-			timeEntry.wid || defaultWid,
+			timeEntry.wid || user.default_wid,
+			timeEntry.uid || user.id,
 			timeEntry.created_with,
 			timeEntry.billable,
 			timeEntry.description,
 			timeEntry.tags,
+			nowDate,
 			nowDate,
 			duration
 		];

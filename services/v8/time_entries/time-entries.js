@@ -15,6 +15,9 @@ const responseTimeEntries = {
 	tid: {
 		type: "integer"
 	},
+	uid: {
+		type: "integer"
+	},
 	billable: {
 		type: "boolean"
 	},
@@ -47,6 +50,10 @@ const responseTimeEntries = {
 	}
 };
 
+const { id, at, ...timeEntriesPost } = responseTimeEntries;
+timeEntriesPost.created_with = { type: "string" };
+const {stop, ...responseStartStop} = responseTimeEntries;
+const { duration, start, ...timeEntriesStartBody } = responseStartStop;
 const successfulResponse = {
 	200: {
 		type: "object",
@@ -59,10 +66,18 @@ const successfulResponse = {
 		}
 	}
 };
-
-const { id, at, ...timeEntriesPost } = responseTimeEntries;
-timeEntriesPost.created_with = { type: "string" };
-const { duration, start, stop, ...timeEntriesStart } = timeEntriesPost;
+const successfulResponseStartStop = {
+	200: {
+		type: "object",
+		properties: {
+			data: {
+				type: "object",
+				properties: timeEntriesStartBody,
+				required: ["id", "duration", "start"]
+			}
+		}
+	}
+};
 
 module.exports = async fastify => {
 	const timeEntryIdParam = {
@@ -102,13 +117,13 @@ module.exports = async fastify => {
 					}
 				}
 			},
-			response: successfulResponse
+			response: successfulResponseStartStop
 		}
 	};
 	fastify.post("/", timeEntriesPostPutSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
-		const defaultWid = await Users.getDefaultWorkspaceByUserName(currentUser.name);
-		const timeEntry = await TimeEntries.create(request.body.time_entry, defaultWid);
+		const user = await Users.getByName(currentUser.name);
+		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
 	});
 
@@ -122,12 +137,12 @@ module.exports = async fastify => {
 				properties: {
 					time_entry: {
 						type: "object",
-						properties: timeEntriesStart,
+						properties: timeEntriesStartBody,
 						required: ["created_with"]
 					}
 				}
 			},
-			response: successfulResponse
+			response: successfulResponseStartStop
 		}
 	};
 	fastify.post("/start", timeEntriesStartSchema, async request => {
@@ -135,7 +150,9 @@ module.exports = async fastify => {
 		if (runningTimeEntries.length) {
 			await TimeEntries.stopTimeEntry(runningTimeEntries[0].duration, runningTimeEntries[0].id);
 		}
-		const timeEntry = await TimeEntries.create(request.body.time_entry);
+		const currentUser = auth.parse(request.headers.authorization);
+		const user = await Users.getByName(currentUser.name);
+		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
 	});
 
