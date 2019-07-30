@@ -6,7 +6,7 @@ class ProjectUsers {
 			projectUser.pid || oldProjectUser.pid,
 			projectUser.uid || oldProjectUser.uid,
 			projectUser.wid || oldProjectUser.wid,
-			projectUser.manager || oldProjectUser.manager,
+			projectUser.hasOwnProperty("manager") ? projectUser.manager : oldProjectUser.manager,
 			projectUser.rate || oldProjectUser.rate,
 			new Date()
 		];
@@ -22,7 +22,7 @@ class ProjectUsers {
 
 	static getValuesForUpdate(projectUser, oldProjectUser) {
 		return [
-			projectUser.manager || oldProjectUser.manager,
+			projectUser.hasOwnProperty("manager") ? projectUser.manager : oldProjectUser.manager,
 			projectUser.rate || oldProjectUser.rate,
 			new Date()
 		];

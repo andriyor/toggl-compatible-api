@@ -32,7 +32,7 @@ class Tasks {
 			task.wid || oldTask.wid,
 			task.uid || oldTask.uid,
 			task.estimated_seconds || oldTask.estimated_seconds,
-			task.active || oldTask.active,
+			task.hasOwnProperty("active") ? task.active : oldTask.active,
 			new Date(),
 			task.tracked_seconds || oldTask.tracked_seconds
 		];

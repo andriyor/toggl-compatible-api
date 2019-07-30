@@ -1,16 +1,4 @@
-const { Pool } = require("pg");
 const { TimeEntries } = require("../../../db/timeEntries");
-
-const config = {
-	user: "postgres", //this is the db user credential
-	database: "toggl_like",
-	password: "18091997",
-	port: 5432,
-	max: 10, // max number of clients in the pool
-	idleTimeoutMillis: 30000
-};
-
-const pool = new Pool(config);
 
 const responseTimeEntries = {
 	id: {
@@ -73,39 +61,6 @@ const successfulResponse = {
 const { id, at, ...timeEntriesPost } = responseTimeEntries;
 timeEntriesPost.created_with = { type: "string" };
 const { duration, start, stop, ...timeEntriesStart } = timeEntriesPost;
-
-async function getRunningTimeEntries() {
-	const runningTimeEntryQuery = "SELECT * FROM time_entries WHERE stop IS NULL";
-	const { rows } = await pool.query(runningTimeEntryQuery);
-	return rows;
-}
-
-async function stopTimeEntry(duration, timeEntryId) {
-	const nowDate = new Date();
-	const newDuration = Math.floor(nowDate / 1000) + duration;
-
-	const updateOneQuery = `UPDATE time_entries
-                          SET duration=$1,
-                              stop=$2
-                          WHERE id = $3 returning *`;
-	return await pool.query(updateOneQuery, [newDuration, nowDate, timeEntryId]);
-}
-
-function getValues(time_entry, oldTimeEntry) {
-	return [
-		time_entry.pid || oldTimeEntry.pid,
-		time_entry.wid || oldTimeEntry.wid,
-		time_entry.created_with || oldTimeEntry.created_with,
-		time_entry.billable || oldTimeEntry.billable,
-		time_entry.duronly || oldTimeEntry.duronly,
-		time_entry.start || oldTimeEntry.start,
-		time_entry.stop || oldTimeEntry.stop,
-		new Date(),
-		time_entry.duration || oldTimeEntry.duration,
-		time_entry.description || oldTimeEntry.description,
-		time_entry.tags || oldTimeEntry.tags
-	];
-}
 
 module.exports = async fastify => {
 	const timeEntryIdParam = {
@@ -177,30 +132,12 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.post("/start", timeEntriesStartSchema, async request => {
-		const runningTimeEntries = await getRunningTimeEntries();
+		const runningTimeEntries = await TimeEntries.getRunningTimeEntries();
 		if (runningTimeEntries.length) {
-			await stopTimeEntry(
-				runningTimeEntries[0].duration,
-				runningTimeEntries[0].id
-			);
+			await TimeEntries.stopTimeEntry(runningTimeEntries[0].duration, runningTimeEntries[0].id);
 		}
-
-		const query = `INSERT INTO time_entries(pid, wid, created_with, billable, description, tags, start, duration)
-                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
-		const nowDate = new Date();
-		const duration = -Math.floor(nowDate / 1000);
-		const values = [
-			request.body.time_entry.pid,
-			request.body.time_entry.wid,
-			request.body.time_entry.created_with,
-			request.body.time_entry.billable,
-			request.body.time_entry.description,
-			request.body.time_entry.tags,
-			nowDate,
-			duration
-		];
-		const { rows } = await pool.query(query, values);
-		return { data: rows[0] };
+		const timeEntry = await TimeEntries.create(request.body.time_entry);
+		return { data: timeEntry };
 	});
 
 	const timeEntryStopSchema = {
@@ -212,13 +149,12 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.put("/:time_entry_id/stop", timeEntryStopSchema, async request => {
-		const query = "SELECT * FROM time_entries WHERE id = $1";
-		const { rows } = await pool.query(query, [request.params.time_entry_id]);
-		if (rows[0].stop) {
+		const timeEntry = await TimeEntries.getById(request.params.time_entry_id);
+		if (timeEntry.stop) {
 			return "Time entry already stopped";
 		}
-		const result = await stopTimeEntry(
-			rows[0].duration,
+		const result = await TimeEntries.stopTimeEntry(
+			timeEntry.duration,
 			request.params.time_entry_id
 		);
 		return { data: result.rows[0] };
@@ -232,7 +168,7 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.get("/current", timeEntryCurrentSchema, async () => {
-		const runningTimeEntries = await getRunningTimeEntries();
+		const runningTimeEntries = await TimeEntries.getRunningTimeEntries();
 		return { data: runningTimeEntries[0] };
 	});
 
@@ -240,32 +176,25 @@ module.exports = async fastify => {
 		schema: {
 			tags: ["time-entries"],
 			params: timeEntryIdParam,
-			...timeEntriesPostPutSchema.schema,
+			body: {
+				type: "object",
+				properties: {
+					time_entry: {
+						type: "object",
+						properties: timeEntriesPost
+					}
+				}
+			},
+			response: successfulResponse,
 			summary: "Update a time entry"
 		}
 	};
 	fastify.put("/:time_entry_id", updateTimeEntrySchema, async request => {
-		const findOneTimeEntryQuery = "SELECT * FROM time_entries WHERE id = $1";
-		const result = await pool.query(findOneTimeEntryQuery, [request.params.time_entry_id]);
-		const updateOneQuery = `UPDATE time_entries
-                            SET pid=$1,
-                                wid=$2,
-                                created_with=$3,
-                                billable=$4,
-                                duronly=$5,
-                                start=$6,
-                                stop=$7,
-                                at=$8,
-                                duration=$9,
-                                description=$10,
-                                tags=$11
-                            WHERE id = $12 returning *`;
-		const values = getValues(request.body.time_entry, result.rows[0]);
-		const { rows } = await pool.query(updateOneQuery, [
-			...values,
-			request.params.time_entry_id
-		]);
-		return { data: rows[0] };
+		const timeEntry = await TimeEntries.updateOne(
+			request.params.time_entry_id,
+			request.body.time_entry
+		);
+		return { data: timeEntry };
 	});
 
 	const timeEntryDeleteSchema = {
@@ -309,11 +238,9 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.get("/", timeEntriesRangeSchema, async request => {
-		const query = "SELECT * FROM time_entries WHERE stop BETWEEN $1 AND $2";
-		const { rows } = await pool.query(query, [
+		return await TimeEntries.getTimeEntriesByTimeRange(
 			request.query.start_date,
 			request.query.end_date
-		]);
-		return rows;
+		);
 	});
 };

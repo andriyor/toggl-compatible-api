@@ -75,8 +75,7 @@ module.exports = async fastify => {
 				properties: {
 					task: {
 						type: "object",
-						properties: taskPost,
-						required: ["name"]
+						properties: taskPost
 					}
 				}
 			},
