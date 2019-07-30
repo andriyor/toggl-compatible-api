@@ -1,26 +1,7 @@
 const { WorkspaceUsers } = require("../../../db/workspaceUsers");
+const { responseWorkspaceUsers } = require("../../../schema/schema");
 
-const workspaceUsers = {
-	id: {
-		type: "integer"
-	},
-	uid: {
-		type: "integer"
-	},
-	admin: {
-		type: "boolean"
-	},
-	active: {
-		type: "boolean"
-	},
-	invite_url: {
-		type: "string",
-		format: "uri",
-		"qt-uri-protocols": ["https"]
-	}
-};
-
-const {invite_url, ...workspaceUsersUpdate} = workspaceUsers;
+const {invite_url, ...workspaceUsersUpdate} = responseWorkspaceUsers;
 
 const successfulResponse = {
 	200: {

@@ -9,6 +9,7 @@ const { responseProject } = require("../../../schema/schema");
 const { responseTask } = require("../../../schema/schema");
 const { responseTag } = require("../../../schema/schema");
 const { responseProjectUsers } = require("../../../schema/schema");
+const { responseWorkspaceUsers } = require("../../../schema/schema");
 
 const responseWorkspace = {
 	id: {
@@ -323,5 +324,38 @@ module.exports = async fastify => {
 	};
 	fastify.get("/:workspace_id/project_users", getWorkspaceProjectUsers, async request => {
 		return await Workspaces.getWorkspaceProjectUsers(request.params.workspace_id);
+	});
+
+	const userFields = {
+		email: {
+			type: "string"
+		},
+		name: {
+			type: "string"
+		},
+		at: {
+			type: "string",
+			format: "date-time"
+		}
+	};
+	const workspaceUsers = { ...responseWorkspaceUsers, ...userFields };
+	const getWorkspaceWorkspaceUsers = {
+		schema: {
+			tags: ["workspaces"],
+			summary: "Get workspace users",
+			params: workspaceIdParam,
+			response: {
+				200: {
+					type: "array",
+					items: {
+						type: "object",
+						properties: workspaceUsers
+					}
+				}
+			}
+		}
+	};
+	fastify.get("/:workspace_id/workspace_users", getWorkspaceWorkspaceUsers, async request => {
+		return await Workspaces.getWorkspaceWorkspaceUsers(request.params.workspace_id);
 	});
 };

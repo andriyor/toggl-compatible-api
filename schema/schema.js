@@ -196,6 +196,29 @@ const responseProjectUsers = {
 	}
 };
 
+const responseWorkspaceUsers = {
+	id: {
+		type: "integer"
+	},
+	uid: {
+		type: "integer"
+	},
+	wid: {
+		type: "integer"
+	},
+	admin: {
+		type: "boolean"
+	},
+	active: {
+		type: "boolean"
+	},
+	invite_url: {
+		type: "string",
+		format: "uri",
+		"qt-uri-protocols": ["https"]
+	}
+};
+
 module.exports = {
 	responseUser,
 	responseClient,
@@ -203,5 +226,6 @@ module.exports = {
 	responseProject,
 	responseTask,
 	responseTag,
-	responseProjectUsers
+	responseProjectUsers,
+	responseWorkspaceUsers
 };

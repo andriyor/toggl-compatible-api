@@ -150,6 +150,15 @@ class Workspaces {
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
+
+	static async getWorkspaceWorkspaceUsers(workspaceId) {
+		const query = `SELECT workspace_users.*, users.email, users.fullname AS name, users.at
+                   FROM workspace_users
+                            RIGHT JOIN users ON users.id = workspace_users.uid
+                   WHERE workspace_users.wid = $1`;
+		const { rows } = await pool.query(query, [workspaceId]);
+		return rows;
+	}
 }
 
 module.exports = {
