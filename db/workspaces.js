@@ -10,11 +10,15 @@ class Workspaces {
 	static getValues(workspace, oldWorkspace) {
 		return [
 			workspace.name || oldWorkspace.name,
-			workspace.premium || oldWorkspace.premium,
+			workspace.hasOwnProperty("premium") ? workspace.admin : oldWorkspace.premium,
 			workspace.default_hourly_rate || oldWorkspace.default_hourly_rate,
 			workspace.default_currency || oldWorkspace.default_currency,
-			workspace.only_admins_may_create_projects || oldWorkspace.only_admins_may_create_projects,
-			workspace.only_admins_see_billable_rates || oldWorkspace.only_admins_see_billable_rates,
+			workspace.hasOwnProperty("only_admins_may_create_projects")
+				? workspace.only_admins_may_create_projects
+				: oldWorkspace.only_admins_may_create_projects,
+			workspace.hasOwnProperty("only_admins_see_billable_rates")
+				? workspace.only_admins_see_billable_rates
+				: oldWorkspace.only_admins_see_billable_rates,
 			workspace.rounding || oldWorkspace.rounding,
 			workspace.rounding_minutes || oldWorkspace.rounding_minutes,
 			new Date(),
