@@ -1,9 +1,9 @@
 const { pool } = require("./db");
 
 class Users {
-	static async getByName(name) {
-		const query = "SELECT * FROM users WHERE fullname = $1";
-		const { rows } = await pool.query(query, [name]);
+	static async getByToken(token) {
+		const query = "SELECT * FROM users WHERE api_token = $1";
+		const { rows } = await pool.query(query, [token]);
 		return rows[0];
 	}
 }

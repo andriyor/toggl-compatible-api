@@ -5,11 +5,11 @@ const { Users } = require("./db/me");
 module.exports = function(fastify, opts, next) {
 	// Place here your custom code!
 
-	const authenticate = {realm: 'Westeros'};
-	fastify.register(require('fastify-basic-auth'), { validate, authenticate });
-	async function validate (username, password) {
-		const user = await Users.getByName(username);
-		if (!user || user.password !== password) {
+	const authenticate = { realm: "Westeros" };
+	fastify.register(require("fastify-basic-auth"), { validate, authenticate });
+	async function validate(username, password) {
+		const user = await Users.getByToken(username);
+		if (!user || (password !== "api_token" && user.api_token !== username)) {
 			return new Error("Unauthorized");
 		}
 	}
@@ -76,7 +76,7 @@ module.exports = function(fastify, opts, next) {
 	});
 
 	fastify.after(() => {
-		fastify.addHook('preHandler', fastify.basicAuth);
+		fastify.addHook("preHandler", fastify.basicAuth);
 	});
 
 	// Make sure to call next when done

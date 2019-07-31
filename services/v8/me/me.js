@@ -26,7 +26,7 @@ module.exports = async fastify => {
 	};
 	fastify.get("/", userSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
-		const user = await Users.getByName(currentUser.name);
+		const user = await Users.getByToken(currentUser.name);
 		return { data: user };
 	});
 };

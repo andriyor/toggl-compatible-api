@@ -122,7 +122,7 @@ module.exports = async fastify => {
 	};
 	fastify.post("/", timeEntriesPostPutSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
-		const user = await Users.getByName(currentUser.name);
+		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
 	});
@@ -151,7 +151,7 @@ module.exports = async fastify => {
 			await TimeEntries.stopTimeEntry(runningTimeEntries[0].duration, runningTimeEntries[0].id);
 		}
 		const currentUser = auth.parse(request.headers.authorization);
-		const user = await Users.getByName(currentUser.name);
+		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
 	});

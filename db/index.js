@@ -1,11 +1,12 @@
 const faker = require("faker");
+const crypto = require("crypto");
 const { pool } = require("./db");
 
 const usersTable = `CREATE TABLE IF NOT EXISTS
                         users
                     (
                         id                        SERIAL PRIMARY KEY,
-                        api_token                 VARCHAR(128),
+                        api_token                 VARCHAR(128) UNIQUE,
                         default_wid               INT,
                         email                     VARCHAR(128) UNIQUE,
                         fullname                  VARCHAR(128),
@@ -184,7 +185,7 @@ const timeEntriesTable = `CREATE TABLE IF NOT EXISTS
 
 	for (let i = 0; i < 10; i++) {
 		const userData = {
-			api_token: faker.random.word(20, 20),
+			api_token: crypto.randomBytes(16).toString("hex"),
 			default_wid: faker.random.number({ min: 1, max: 10 }),
 			email: faker.internet.email(),
 			fullname: faker.internet.userName(),
