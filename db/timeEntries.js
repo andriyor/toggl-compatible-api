@@ -30,7 +30,7 @@ class TimeEntries {
 			new Date(),
 			time_entry.duration || oldTimeEntry.duration,
 			time_entry.description || oldTimeEntry.description,
-			time_entry.tags || oldTimeEntry.tags
+			time_entry.tags || oldTimeEntry.tags || {}
 		];
 	}
 
@@ -38,7 +38,7 @@ class TimeEntries {
 		const query = `INSERT INTO time_entries(pid, wid, uid, created_with, billable, description, tags, start, at, duration)
                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const nowDate = new Date();
-		const duration = -Math.floor(nowDate / 1000);
+
 		const values = [
 			timeEntry.pid,
 			timeEntry.wid || user.default_wid,
@@ -46,10 +46,10 @@ class TimeEntries {
 			timeEntry.created_with,
 			timeEntry.billable,
 			timeEntry.description,
-			timeEntry.tags,
+			timeEntry.tags || {},
 			nowDate,
 			nowDate,
-			duration
+			timeEntry.duration || -Math.floor(nowDate / 1000)
 		];
 		const { rows } = await pool.query(query, values);
 		return rows[0];

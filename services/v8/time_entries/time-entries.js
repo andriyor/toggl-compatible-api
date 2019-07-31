@@ -15,9 +15,6 @@ const responseTimeEntries = {
 	tid: {
 		type: "integer"
 	},
-	uid: {
-		type: "integer"
-	},
 	billable: {
 		type: "boolean"
 	},
@@ -52,8 +49,7 @@ const responseTimeEntries = {
 
 const { id, at, ...timeEntriesPost } = responseTimeEntries;
 timeEntriesPost.created_with = { type: "string" };
-const {stop, ...responseStartStop} = responseTimeEntries;
-const { duration, start, ...timeEntriesStartBody } = responseStartStop;
+const { duration, start, stop, ...postTimeEntriesStart } = timeEntriesPost;
 const successfulResponse = {
 	200: {
 		type: "object",
@@ -61,18 +57,6 @@ const successfulResponse = {
 			data: {
 				type: "object",
 				properties: responseTimeEntries,
-				required: ["id", "duration", "start"]
-			}
-		}
-	}
-};
-const successfulResponseStartStop = {
-	200: {
-		type: "object",
-		properties: {
-			data: {
-				type: "object",
-				properties: timeEntriesStartBody,
 				required: ["id", "duration", "start"]
 			}
 		}
@@ -117,12 +101,13 @@ module.exports = async fastify => {
 					}
 				}
 			},
-			response: successfulResponseStartStop
+			response: successfulResponse
 		}
 	};
 	fastify.post("/", timeEntriesPostPutSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
 		const user = await Users.getByToken(currentUser.name);
+		console.log(request.body.time_entry);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
 	});
@@ -137,12 +122,12 @@ module.exports = async fastify => {
 				properties: {
 					time_entry: {
 						type: "object",
-						properties: timeEntriesStartBody,
+						properties: postTimeEntriesStart,
 						required: ["created_with"]
 					}
 				}
 			},
-			response: successfulResponseStartStop
+			response: successfulResponse
 		}
 	};
 	fastify.post("/start", timeEntriesStartSchema, async request => {
@@ -153,6 +138,7 @@ module.exports = async fastify => {
 		const currentUser = auth.parse(request.headers.authorization);
 		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
+		console.log(timeEntry);
 		return { data: timeEntry };
 	});
 
