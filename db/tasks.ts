@@ -1,8 +1,8 @@
-const { pool } = require("./db");
+import pool from './db';
 const { TimeEntries } = require("./timeEntries");
 
 class Tasks {
-	static async create(task) {
+	static async create(task: any) {
 		const query = `INSERT INTO tasks(name, pid, wid, uid, estimated_seconds, active, at, tracked_seconds)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
 		const values = [
@@ -19,13 +19,13 @@ class Tasks {
 		return rows[0];
 	}
 
-	static async findByID(taskId) {
+	static async findByID(taskId: number) {
 		const query = "SELECT * FROM tasks WHERE id = $1";
 		const { rows } = await pool.query(query, [taskId]);
 		return rows[0];
 	}
 
-	static getValues(task, oldTask) {
+	static getValues(task: any, oldTask: any) {
 		return [
 			task.name || oldTask.name,
 			task.pid || oldTask.pid,
@@ -38,7 +38,7 @@ class Tasks {
 		];
 	}
 
-	static async updateOne(taskId, task) {
+	static async updateOne(taskId: number, task: any) {
 		const findOneQuery = "SELECT * FROM tasks WHERE id = $1";
 		const result = await pool.query(findOneQuery, [taskId]);
 
@@ -57,13 +57,13 @@ class Tasks {
 		return rows[0];
 	}
 
-	static async destroy(taskId) {
+	static async destroy(taskId: number) {
 		await TimeEntries.unsetTask(taskId);
 		const query = "DELETE FROM tasks WHERE id = $1;";
 		await pool.query(query, [taskId]);
 	}
 
-	static async destroyByProjectId(projectId) {
+	static async destroyByProjectId(projectId: number) {
 		const query = "DELETE FROM tasks WHERE pid = $1;";
 		await pool.query(query, [projectId]);
 	}

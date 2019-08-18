@@ -1,3 +1,6 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
+
 const { ProjectUsers } = require("../../../db/projectUsers");
 const { responseProjectUsers } = require("../../../schema/schema");
 
@@ -14,7 +17,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const { id, at, ...projectUserPost } = responseProjectUsers;
 	const projectUserPostPutSchema = {
 		schema: {
@@ -86,7 +91,7 @@ module.exports = async fastify => {
 	};
 	fastify.delete("/:project_user_id", projectUsersDeleteSchema, async request => {
 		const projectUsersIds = request.params.project_user_id.split(",");
-		for (projectUsersId of projectUsersIds) {
+		for (const projectUsersId of projectUsersIds) {
 			await ProjectUsers.destroy(projectUsersId);
 		}
 		return "OK";

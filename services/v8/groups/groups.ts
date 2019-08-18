@@ -1,3 +1,6 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
+
 const { Groups } = require("../../../db/groups");
 
 const { responseGroup } = require("../../../schema/schema");
@@ -15,7 +18,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const { id, ...groupPost } = responseGroup;
 	const groupPostPutSchema = {
 		schema: {
@@ -74,10 +79,7 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.put("/:group_id", updateTagSchema, async request => {
-		const group = await Groups.updateOne(
-			request.params.group_id,
-			request.body.group
-		);
+		const group = await Groups.updateOne(request.params.group_id, request.body.group);
 		return { data: group };
 	});
 

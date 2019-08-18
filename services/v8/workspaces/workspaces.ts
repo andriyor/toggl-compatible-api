@@ -1,4 +1,6 @@
 const auth = require("basic-auth");
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
 
 const { Users } = require("../../../db/users");
 const { Workspaces } = require("../../../db/workspaces");
@@ -50,7 +52,9 @@ const responseWorkspace = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const workspacesSchema = {
 		schema: {
 			tags: ["workspaces"],
@@ -231,7 +235,9 @@ module.exports = async fastify => {
 			summary: "Get workspace projects",
 			params: workspaceIdParam,
 			querystring: {
-				active: { type: "string" }
+				active: {
+					enum: ["true", "false", "both"]
+				}
 			},
 			response: {
 				200: {
@@ -260,7 +266,9 @@ module.exports = async fastify => {
 			summary: "Get workspace tasks",
 			params: workspaceIdParam,
 			querystring: {
-				active: { type: "string" }
+				active: {
+					enum: ["true", "false", "both"]
+				}
 			},
 			response: {
 				200: {

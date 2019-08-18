@@ -1,3 +1,6 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
+
 const auth = require("basic-auth");
 
 const { Users } = require("../../../db/me");
@@ -16,7 +19,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const userSchema = {
 		schema: {
 			tags: ["user"],

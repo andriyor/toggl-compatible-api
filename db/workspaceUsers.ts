@@ -1,7 +1,7 @@
-const { pool } = require("./db");
+import pool from './db';
 
 class WorkspaceUsers {
-	static getValues(workspaceUsers, oldWorkspaceUsers) {
+	static getValues(workspaceUsers: any, oldWorkspaceUsers: any) {
 		return [
 			workspaceUsers.uid || oldWorkspaceUsers.uid,
 			workspaceUsers.wid || oldWorkspaceUsers.wid,
@@ -10,7 +10,7 @@ class WorkspaceUsers {
 		];
 	}
 
-	static async updateOne(workspaceUsersId, workspaceUsers) {
+	static async updateOne(workspaceUsersId: number, workspaceUsers: any) {
 		const findOneWorkspaceUsersQuery = "SELECT * FROM workspace_users WHERE id = $1";
 		const result = await pool.query(findOneWorkspaceUsersQuery, [workspaceUsersId]);
 		const updateOneWorkspaceQuery = `UPDATE workspace_users
@@ -24,7 +24,7 @@ class WorkspaceUsers {
 		return rows[0];
 	}
 
-	static async destroy(workspaceUsersId) {
+	static async destroy(workspaceUsersId: number) {
 		const query = "DELETE FROM workspace_users WHERE id = $1;";
 		await pool.query(query, [workspaceUsersId]);
 	}

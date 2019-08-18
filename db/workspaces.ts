@@ -1,13 +1,13 @@
-const { pool } = require("./db");
+import pool from './db';
 
 class Workspaces {
-	static async getById(workspaceId) {
+	static async getById(workspaceId: number) {
 		const query = "SELECT * FROM workspaces WHERE id = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows[0];
 	}
 
-	static getValues(workspace, oldWorkspace) {
+	static getValues(workspace: any, oldWorkspace: any) {
 		return [
 			workspace.name || oldWorkspace.name,
 			workspace.hasOwnProperty("premium") ? workspace.admin : oldWorkspace.premium,
@@ -26,7 +26,7 @@ class Workspaces {
 		];
 	}
 
-	static async updateOne(workspace, workspace_id) {
+	static async updateOne(workspace: any, workspace_id: any) {
 		const findOneWorkspaceQuery = "SELECT * FROM projects WHERE id = $1";
 		const result = await pool.query(findOneWorkspaceQuery, [workspace_id]);
 
@@ -47,7 +47,7 @@ class Workspaces {
 		return rows[0];
 	}
 
-	static async getWorkspacesByUserId(userId) {
+	static async getWorkspacesByUserId(userId: number) {
 		const userWorkspacesQuery = `SELECT workspaces.id,
                                         name,
                                         premium,
@@ -67,7 +67,7 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceUsersByWorkspaceId(workspace_id) {
+	static async getWorkspaceUsersByWorkspaceId(workspace_id: number) {
 		const query = `SELECT users.id,
                           api_token,
                           default_wid,
@@ -94,7 +94,7 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceClientsByWorkspaceId(workspaceId) {
+	static async getWorkspaceClientsByWorkspaceId(workspaceId: number) {
 		const query = `SELECT clients.id,
                           clients.name,
                           wid,
@@ -109,49 +109,49 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceGroupsByWorkspaceId(workspaceId) {
+	static async getWorkspaceGroupsByWorkspaceId(workspaceId: number) {
 		const query = "SELECT * FROM groups WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceProjectsByActive(workspaceId, active = true) {
+	static async getWorkspaceProjectsByActive(workspaceId: number, active = true) {
 		const query = "SELECT * FROM projects WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
 	}
 
-	static async getWorkspaceProjects(workspaceId) {
+	static async getWorkspaceProjects(workspaceId: number) {
 		const query = "SELECT * FROM projects WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceTasksByActive(workspaceId, active = true) {
+	static async getWorkspaceTasksByActive(workspaceId: number, active = true) {
 		const query = "SELECT * FROM tasks WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
 	}
 
-	static async getWorkspaceTasks(workspaceId) {
+	static async getWorkspaceTasks(workspaceId: number) {
 		const query = "SELECT * FROM tasks WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceTagsByActive(workspaceId) {
+	static async getWorkspaceTagsByActive(workspaceId: number) {
 		const query = "SELECT * FROM tags WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceProjectUsers(workspaceId) {
+	static async getWorkspaceProjectUsers(workspaceId: number) {
 		const query = "SELECT * FROM project_users WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceWorkspaceUsers(workspaceId) {
+	static async getWorkspaceWorkspaceUsers(workspaceId: number) {
 		const query = `SELECT workspace_users.*, users.email, users.fullname AS name, users.at
                    FROM workspace_users
                             RIGHT JOIN users ON users.id = workspace_users.uid

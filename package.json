@@ -2,7 +2,7 @@
   "name": "toggl-interoperable-api",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "app.ts",
   "directories": {
     "test": "test"
   },
@@ -10,7 +10,8 @@
     "test": "tap test/**/*.test.js",
     "start": "fastify start -l info app.js",
     "watch": "fastify start --watch -l info app.js",
-    "dev": "fastify start -l info -P app.js"
+    "dev": "fastify start -l info -P app.js",
+    "tsc": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -24,10 +25,13 @@
     "fastify-cli": "^1.1.0",
     "fastify-plugin": "^1.5.0",
     "fastify-swagger": "^2.4.0",
-    "pg": "^7.11.0"
+    "pg": "^7.11.0",
+    "ts-node-dev": "^1.0.0-pre.41"
   },
   "devDependencies": {
-    "tap": "^12.5.3"
+    "tap": "^12.5.3",
+    "typescript": "^3.5.3",
+    "@types/node": "^12.6.8"
   },
   "prettier": {
     "printWidth": 100

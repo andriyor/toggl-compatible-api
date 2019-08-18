@@ -1,7 +1,7 @@
-const { pool } = require("./db");
+import pool from './db';
 
 class ProjectUsers {
-	static getValues(projectUser, oldProjectUser) {
+	static getValues(projectUser: any, oldProjectUser: any) {
 		return [
 			projectUser.pid || oldProjectUser.pid,
 			projectUser.uid || oldProjectUser.uid,
@@ -12,7 +12,7 @@ class ProjectUsers {
 		];
 	}
 
-	static async create(projectUsers) {
+	static async create(projectUsers: any) {
 		const createProjectUserQuery = `INSERT INTO project_users(pid, uid, wid, manager, rate, at)
                                     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
 		const projectUserValues = ProjectUsers.getValues(projectUsers, {});
@@ -20,7 +20,7 @@ class ProjectUsers {
 		return rows[0];
 	}
 
-	static getValuesForUpdate(projectUser, oldProjectUser) {
+	static getValuesForUpdate(projectUser: any, oldProjectUser: any) {
 		return [
 			projectUser.hasOwnProperty("manager") ? projectUser.manager : oldProjectUser.manager,
 			projectUser.rate || oldProjectUser.rate,
@@ -28,13 +28,13 @@ class ProjectUsers {
 		];
 	}
 
-	static async getById(projectUserId) {
+	static async getById(projectUserId: number) {
 		const query = "SELECT * FROM project_users WHERE id = $1";
 		const { rows } = await pool.query(query, [projectUserId]);
 		return rows[0];
 	}
 
-	static async updateOne(projectUserId, projectUser) {
+	static async updateOne(projectUserId: number, projectUser: any) {
 		const findOneQuery = "SELECT * FROM project_users WHERE id = $1";
 		const result = await pool.query(findOneQuery, [projectUserId]);
 
@@ -52,7 +52,7 @@ class ProjectUsers {
 		}
 	}
 
-	static async getWithFullname(projectUsersId) {
+	static async getWithFullname(projectUsersId: number) {
 		const findOneQuery = `SELECT project_users.*, users.fullname
                           FROM project_users
                                    right join users on Users.id = project_users.uid
@@ -61,12 +61,12 @@ class ProjectUsers {
 		return rows[0];
 	}
 
-	static async destroy(projectUsersId) {
+	static async destroy(projectUsersId: number) {
 		const query = "DELETE FROM project_users WHERE id = $1;";
 		await pool.query(query, [projectUsersId]);
 	}
 
-	static async destroyByProjectId(projectId) {
+	static async destroyByProjectId(projectId: number) {
 		const query = "DELETE FROM project_users WHERE pid = $1;";
 		await pool.query(query, [projectId]);
 	}

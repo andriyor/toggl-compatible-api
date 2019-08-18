@@ -1,3 +1,6 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
+
 const auth = require("basic-auth");
 const { TimeEntries } = require("../../../db/timeEntries");
 const { Users } = require("../../../db/me");
@@ -48,6 +51,7 @@ const responseTimeEntries = {
 };
 
 const { id, at, ...timeEntriesPost } = responseTimeEntries;
+// @ts-ignore
 timeEntriesPost.created_with = { type: "string" };
 const { duration, start, stop, ...postTimeEntriesStart } = timeEntriesPost;
 const successfulResponse = {
@@ -63,7 +67,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const timeEntryIdParam = {
 		type: "object",
 		properties: {
@@ -107,7 +113,6 @@ module.exports = async fastify => {
 	fastify.post("/", timeEntriesPostPutSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
 		const user = await Users.getByToken(currentUser.name);
-		console.log(request.body.time_entry);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
 	});
@@ -138,7 +143,6 @@ module.exports = async fastify => {
 		const currentUser = auth.parse(request.headers.authorization);
 		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
-		console.log(timeEntry);
 		return { data: timeEntry };
 	});
 

@@ -1,3 +1,5 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
 const { Clients } = require("../../../db/clients");
 const { responseClient } = require("../../../schema/schema");
 const { responseProject } = require("../../../schema/schema");
@@ -15,7 +17,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const { id, at, ...clientPost } = responseClient;
 	const { wid, ...clientPut } = clientPost;
 	const clientPostSchema = {
@@ -103,7 +107,9 @@ module.exports = async fastify => {
 			summary: "Get client projects",
 			params: clientIdParam,
 			querystring: {
-				active: { type: "string" }
+				active: {
+					enum: ["true", "false", "both"]
+				}
 			},
 			response: {
 				200: {
@@ -120,9 +126,6 @@ module.exports = async fastify => {
 		if (request.query.active === "both") {
 			return await Clients.getClientProjects(request.params.client_id);
 		}
-		return await Clients.getClientProjectsByActive(
-			request.params.client_id,
-			request.query.active
-		);
+		return await Clients.getClientProjectsByActive(request.params.client_id, request.query.active);
 	});
 };

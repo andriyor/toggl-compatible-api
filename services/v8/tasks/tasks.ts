@@ -1,3 +1,6 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
+
 const { Tasks } = require("../../../db/tasks");
 const { responseTask } = require("../../../schema/schema");
 
@@ -14,7 +17,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const { id, at, ...taskPost } = responseTask;
 	const taskPostPutSchema = {
 		schema: {
@@ -96,8 +101,8 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.delete("/:task_id", taskDeleteSchema, async request => {
-		const taskIds = request.params.task_id.split(',');
-		for (taskId of taskIds) {
+		const taskIds = request.params.task_id.split(",");
+		for (const taskId of taskIds) {
 			await Tasks.destroy(taskId);
 		}
 		return "OK";

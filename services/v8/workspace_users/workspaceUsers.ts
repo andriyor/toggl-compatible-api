@@ -1,7 +1,9 @@
 const { WorkspaceUsers } = require("../../../db/workspaceUsers");
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
 const { responseWorkspaceUsers } = require("../../../schema/schema");
 
-const {invite_url, ...workspaceUsersUpdate} = responseWorkspaceUsers;
+const { invite_url, ...workspaceUsersUpdate } = responseWorkspaceUsers;
 
 const successfulResponse = {
 	200: {
@@ -15,7 +17,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const { id, ...workspaceUsersPost } = workspaceUsersUpdate;
 	const workspaceUsersIdParam = {
 		type: "object",
@@ -44,7 +48,10 @@ module.exports = async fastify => {
 		}
 	};
 	fastify.put("/:workspace_user_id", workspaceUsersPutSchema, async request => {
-		const task = await WorkspaceUsers.updateOne(request.params.workspace_user_id, request.body.workspace_user);
+		const task = await WorkspaceUsers.updateOne(
+			request.params.workspace_user_id,
+			request.body.workspace_user
+		);
 		return { data: task };
 	});
 

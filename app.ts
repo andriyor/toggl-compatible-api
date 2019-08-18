@@ -1,13 +1,15 @@
 const path = require("path");
 const AutoLoad = require("fastify-autoload");
 const { Users } = require("./db/me");
+import fastify from 'fastify'
+import { IncomingMessage, Server, ServerResponse } from 'http'
 
-module.exports = function(fastify, opts, next) {
+module.exports = function(fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> , opts: any, next: Function) {
 	// Place here your custom code!
 
 	const authenticate = { realm: "Westeros" };
 	fastify.register(require("fastify-basic-auth"), { validate, authenticate });
-	async function validate(username, password) {
+	async function validate(username: string, password: string) {
 		const user = await Users.getByToken(username);
 		if (!user || (password !== "api_token" && user.api_token !== username)) {
 			return new Error("Unauthorized");
@@ -69,15 +71,16 @@ module.exports = function(fastify, opts, next) {
 		options: Object.assign({}, opts)
 	});
 
-	opts.prefix = "/api/v9/";
-	fastify.register(AutoLoad, {
-		dir: path.join(__dirname, "services/v9"),
-		options: Object.assign({}, opts)
-	});
+	// opts.prefix = "/api/v9/";
+	// fastify.register(AutoLoad, {
+	// 	dir: path.join(__dirname, "services/v9"),
+	// 	options: Object.assign({}, opts)
+	// });
 
-	fastify.after(() => {
-		fastify.addHook("preHandler", fastify.basicAuth);
-	});
+	// fastify.after(() => {
+	// 	@ts-ignore
+	// 	fastify.addHook("preHandler", fastify.basicAuth);
+	// });
 
 	// Make sure to call next when done
 	next();

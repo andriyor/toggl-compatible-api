@@ -1,3 +1,6 @@
+import fastify from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
+
 const { Tags } = require("../../../db/tags");
 
 const { responseTag } = require("../../../schema/schema");
@@ -15,7 +18,9 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async fastify => {
+module.exports = async (
+	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
+) => {
 	const { id, ...tagPost } = responseTag;
 	const { wid, ...tagPut } = tagPost;
 	const tagPostPutSchema = {

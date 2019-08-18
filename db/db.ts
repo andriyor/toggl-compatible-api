@@ -9,8 +9,4 @@ const config = {
 	idleTimeoutMillis: 30000
 };
 
-const pool = new Pool(config);
-
-module.exports = {
-	pool
-};
+export = new Pool(config);

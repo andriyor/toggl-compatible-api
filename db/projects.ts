@@ -1,16 +1,16 @@
-const { pool } = require("./db");
+import pool from './db';
 const { TimeEntries } = require("./timeEntries");
 const { Tasks } = require("./tasks");
 const { ProjectUsers } = require("./projectUsers");
 
 class Projects {
-	static async getById(projectId) {
+	static async getById(projectId: number) {
 		const query = "SELECT * FROM projects WHERE id = $1";
 		const { rows } = await pool.query(query, [projectId]);
 		return rows[0];
 	}
 
-	static getValues(project, oldProject) {
+	static getValues(project: any, oldProject: any) {
 		return [
 			project.name || oldProject.name,
 			project.wid || oldProject.wid,
@@ -28,7 +28,7 @@ class Projects {
 		];
 	}
 
-	static async create(project) {
+	static async create(project: any) {
 		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
                                                      billable, auto_estimates, estimated_hours, at, color, rate)
                                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
@@ -37,7 +37,7 @@ class Projects {
 		return rows[0];
 	}
 
-	static async updateOne(projectId, project) {
+	static async updateOne(projectId: number, project: any) {
 		const findOneProjectQuery = "SELECT * FROM projects WHERE id = $1";
 		const result = await pool.query(findOneProjectQuery, [projectId]);
 
@@ -61,7 +61,7 @@ class Projects {
 		return rows[0];
 	}
 
-	static async destroy(projectId) {
+	static async destroy(projectId: number) {
 		await ProjectUsers.destroyByProjectId(projectId);
 		await TimeEntries.unsetProject(projectId);
 		await Tasks.destroyByProjectId(projectId);
@@ -69,13 +69,13 @@ class Projects {
 		await pool.query(query, [projectId]);
 	}
 
-	static async getProjectUsersByProjectId(projectId) {
+	static async getProjectUsersByProjectId(projectId: number) {
 		const query = "SELECT * FROM project_users WHERE pid = $1";
 		const { rows } = await pool.query(query, [projectId]);
 		return rows;
 	}
 
-	static async getTasksByProjectId(projectId) {
+	static async getTasksByProjectId(projectId: number) {
 		const query = "SELECT * FROM tasks WHERE pid = $1";
 		const { rows } = await pool.query(query, [projectId]);
 		return rows;

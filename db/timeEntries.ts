@@ -1,4 +1,4 @@
-const { pool } = require("./db");
+import pool from './db';
 
 class TimeEntries {
 	static async getRunningTimeEntries() {
@@ -7,8 +7,9 @@ class TimeEntries {
 		return rows;
 	}
 
-	static async stopTimeEntry(duration, timeEntryId) {
+	static async stopTimeEntry(duration: number, timeEntryId: number) {
 		const nowDate = new Date();
+		// @ts-ignore
 		const newDuration = Math.floor(nowDate / 1000) + duration;
 
 		const updateOneQuery = `UPDATE time_entries
@@ -18,7 +19,7 @@ class TimeEntries {
 		return await pool.query(updateOneQuery, [newDuration, nowDate, timeEntryId]);
 	}
 
-	static getValues(time_entry, oldTimeEntry) {
+	static getValues(time_entry: any, oldTimeEntry: any) {
 		return [
 			time_entry.pid || oldTimeEntry.pid,
 			time_entry.wid || oldTimeEntry.wid,
@@ -34,7 +35,7 @@ class TimeEntries {
 		];
 	}
 
-	static async create(timeEntry, user) {
+	static async create(timeEntry: any, user: any) {
 		const query = `INSERT INTO time_entries(pid, wid, uid, created_with, billable, description, tags, start, at, duration)
                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const nowDate = new Date();
@@ -49,19 +50,20 @@ class TimeEntries {
 			timeEntry.tags || {},
 			nowDate,
 			nowDate,
+			// @ts-ignore
 			timeEntry.duration || -Math.floor(nowDate / 1000)
 		];
 		const { rows } = await pool.query(query, values);
 		return rows[0];
 	}
 
-	static async getById(timeEntryId) {
+	static async getById(timeEntryId: number) {
 		const query = "SELECT * FROM time_entries WHERE id = $1";
 		const { rows } = await pool.query(query, [timeEntryId]);
 		return rows[0];
 	}
 
-	static async updateOne(timeEntryId, timeEntry) {
+	static async updateOne(timeEntryId: number, timeEntry: any) {
 		const findOneTimeEntryQuery = "SELECT * FROM time_entries WHERE id = $1";
 		const result = await pool.query(findOneTimeEntryQuery, [timeEntryId]);
 		const updateOneQuery = `UPDATE time_entries
@@ -82,23 +84,23 @@ class TimeEntries {
 		return rows[0];
 	}
 
-	static async getTimeEntriesByTimeRange(startDate, endDate) {
+	static async getTimeEntriesByTimeRange(startDate: Date, endDate: Date) {
 		const query = "SELECT * FROM time_entries WHERE stop BETWEEN $1 AND $2";
 		const { rows } = await pool.query(query, [startDate, endDate]);
 		return rows;
 	}
 
-	static async destroy(timeEntryId) {
+	static async destroy(timeEntryId: number) {
 		const query = "DELETE FROM time_entries WHERE id = $1;";
 		await pool.query(query, [timeEntryId]);
 	}
 
-	static async unsetProject(projectId) {
+	static async unsetProject(projectId: number) {
 		const query = "UPDATE time_entries SET pid=NULL WHERE pid = $1;";
 		await pool.query(query, [projectId]);
 	}
 
-	static async unsetTask(taskId) {
+	static async unsetTask(taskId: number) {
 		const query = "UPDATE time_entries SET tid=NULL WHERE tid = $1;";
 		await pool.query(query, [taskId]);
 	}
