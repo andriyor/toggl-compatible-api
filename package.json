@@ -19,19 +19,19 @@
   "dependencies": {
     "basic-auth": "^2.0.1",
     "faker": "github:Marak/faker.js",
-    "fastify": "^2.0.0",
+    "fastify": "^2.7.1",
     "fastify-autoload": "^1.0.0",
     "fastify-basic-auth": "^0.4.0",
     "fastify-cli": "^1.1.0",
     "fastify-plugin": "^1.5.0",
     "fastify-swagger": "^2.4.0",
-    "pg": "^7.11.0",
+    "pg": "^7.12.1",
     "ts-node-dev": "^1.0.0-pre.41"
   },
   "devDependencies": {
-    "tap": "^12.5.3",
-    "typescript": "^3.5.3",
-    "@types/node": "^12.6.8"
+    "@types/node": "^12.7.2",
+    "tap": "^14.6.1",
+    "typescript": "^3.5.3"
   },
   "prettier": {
     "printWidth": 100
