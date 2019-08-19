@@ -26,7 +26,8 @@
     "fastify-plugin": "^1.5.0",
     "fastify-swagger": "^2.4.0",
     "pg": "^7.12.1",
-    "ts-node-dev": "^1.0.0-pre.41"
+    "ts-node-dev": "^1.0.0-pre.41",
+    "typescript-json-schema": "^0.39.0"
   },
   "devDependencies": {
     "@types/node": "^12.7.2",
@@ -34,6 +35,6 @@
     "typescript": "^3.5.3"
   },
   "prettier": {
-    "printWidth": 100
+    "printWidth": 120
   }
 }

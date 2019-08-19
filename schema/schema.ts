@@ -1,4 +1,4 @@
-const responseUser = {
+export const responseUser = {
 	id: {
 		type: "integer"
 	},
@@ -65,7 +65,7 @@ const responseUser = {
 	}
 };
 
-const responseClient = {
+export const responseClient = {
 	id: {
 		type: "integer"
 	},
@@ -84,7 +84,7 @@ const responseClient = {
 	}
 };
 
-const responseGroup = {
+export const responseGroup = {
 	id: {
 		type: "integer"
 	},
@@ -99,7 +99,7 @@ const responseGroup = {
 	}
 };
 
-const responseProject = {
+export const responseProject = {
 	id: {
 		type: "integer"
 	},
@@ -133,7 +133,7 @@ const responseProject = {
 	}
 };
 
-const responseTask = {
+export const responseTask = {
 	id: {
 		type: "integer"
 	},
@@ -163,7 +163,7 @@ const responseTask = {
 	}
 };
 
-const responseTag = {
+export const responseTag = {
 	id: {
 		type: "integer"
 	},
@@ -175,7 +175,7 @@ const responseTag = {
 	}
 };
 
-const responseProjectUsers = {
+export const responseProjectUsers = {
 	id: {
 		type: "integer"
 	},
@@ -196,7 +196,7 @@ const responseProjectUsers = {
 	}
 };
 
-const responseWorkspaceUsers = {
+export const responseWorkspaceUsers = {
 	id: {
 		type: "integer"
 	},
@@ -217,15 +217,4 @@ const responseWorkspaceUsers = {
 		format: "uri",
 		"qt-uri-protocols": ["https"]
 	}
-};
-
-module.exports = {
-	responseUser,
-	responseClient,
-	responseGroup,
-	responseProject,
-	responseTask,
-	responseTag,
-	responseProjectUsers,
-	responseWorkspaceUsers
 };

@@ -1,9 +1,9 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
-const { Tags } = require("../../../db/tags");
-
-const { responseTag } = require("../../../schema/schema");
+import { Tags } from "../../../db/tags";
+import { responseTag } from "../../../schema/schema";
+import {TagBody, TagParams} from "../../../models/tag";
 
 const successfulResponse = {
 	200: {
@@ -18,9 +18,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const { id, ...tagPost } = responseTag;
 	const { wid, ...tagPut } = tagPost;
 	const tagPostPutSchema = {
@@ -40,7 +38,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", tagPostPutSchema, async (request, reply) => {
+	fastify.post<unknown, unknown, unknown, TagBody>("/", tagPostPutSchema, async (request, reply) => {
 		try {
 			const tag = await Tags.create(request.body.tag);
 			return { data: tag };
@@ -55,7 +53,7 @@ module.exports = async (
 		type: "object",
 		properties: {
 			tag_id: {
-				type: "string",
+				type: "number",
 				description: "tag id"
 			}
 		}
@@ -78,9 +76,15 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:tag_id", updateTagSchema, async request => {
-		const tag = await Tags.updateOne(request.params.tag_id, request.body.tag);
-		return { data: tag };
+	fastify.put<unknown, TagParams, unknown, TagBody>("/:tag_id", updateTagSchema, async (request, reply) => {
+		try {
+			const tag = await Tags.updateOne(request.params.tag_id, request.body.tag);
+			return { data: tag };
+		} catch (e) {
+			if (e.code === "23505") {
+				reply.code(400).send(`Tag already exists: ${request.body.tag.name}`);
+			}
+		}
 	});
 
 	const projectDeleteSchema = {
@@ -90,8 +94,8 @@ module.exports = async (
 			params: tagIdParam
 		}
 	};
-	fastify.delete("/:tag_id", projectDeleteSchema, async request => {
-		await Tags.destroy(request.params.tag_id);
+	fastify.delete<unknown, TagParams, unknown, unknown>("/:tag_id", projectDeleteSchema, async request => {
+		await Tags.destroy(<number>request.params.tag_id);
 		return "OK";
 	});
 };

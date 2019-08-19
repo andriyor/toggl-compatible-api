@@ -1,7 +1,8 @@
 import pool from './db';
+import { Tag } from "../models/tag";
 
-class Tags {
-	static async create(tag: any) {
+export class Tags {
+	static async create(tag: Tag) {
 		const query = `INSERT INTO tags(name, wid)
                    VALUES ($1, $2) RETURNING *`;
 		const projectUserValues = [tag.name, tag.wid];
@@ -9,7 +10,7 @@ class Tags {
 		return rows[0];
 	}
 
-	static async updateOne(tagId: number, tag: any) {
+	static async updateOne(tagId: number, tag: Tag) {
 		const query = `UPDATE tags
                    SET name=$1
                    WHERE id = $2 RETURNING *`;
@@ -23,7 +24,3 @@ class Tags {
 		await pool.query(query, [tagId]);
 	}
 }
-
-module.exports = {
-	Tags
-};

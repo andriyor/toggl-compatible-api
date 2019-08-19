@@ -62,3 +62,4 @@ examples/typescript-server.js
 test/types/index.js
 
 build/
+example/
