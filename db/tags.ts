@@ -10,7 +10,7 @@ export class Tags {
 		return rows[0];
 	}
 
-	static async updateOne(tagId: number, tag: Tag) {
+	static async updateOne(tagId: string, tag: Tag) {
 		const query = `UPDATE tags
                    SET name=$1
                    WHERE id = $2 RETURNING *`;
@@ -19,7 +19,7 @@ export class Tags {
 		return rows[0];
 	}
 
-	static async destroy(tagId: number) {
+	static async destroy(tagId: string) {
 		const query = "DELETE FROM tags WHERE id = $1;";
 		await pool.query(query, [tagId]);
 	}

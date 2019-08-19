@@ -1,7 +1,8 @@
 import pool from "./db";
+import {Client} from "../models/Client";
 
-class Clients {
-	static async create(client: any) {
+export class Clients {
+	static async create(client: Client) {
 		const createQuery = `INSERT INTO clients(name, wid, notes, at)
                          VALUES ($1, $2, $3, $4) RETURNING *`;
 		const values = [client.name, client.wid, client.notes, new Date()];
@@ -9,17 +10,17 @@ class Clients {
 		return rows[0];
 	}
 
-	static async findByID(clientId: any) {
+	static async findByID(clientId: string) {
 		const query = "SELECT * FROM clients WHERE id = $1";
 		const { rows } = await pool.query(query, [clientId]);
 		return rows[0];
 	}
 
-	static getValues(client: any, olClient: any) {
+	static getValues(client: Client, olClient: Client) {
 		return [client.name || olClient.name, client.notes || olClient.notes, new Date()];
 	}
 
-	static async updateOne(clientId: number, client: any) {
+	static async updateOne(clientId: string, client: Client) {
 		const findOneQuery = "SELECT * FROM clients WHERE id = $1";
 		const result = await pool.query(findOneQuery, [clientId]);
 
@@ -33,26 +34,22 @@ class Clients {
 		return rows[0];
 	}
 
-	static async destroy(clientId: number) {
+	static async destroy(clientId: string) {
 		const projectQuery = "UPDATe projects SET cid=NULL WHERE cid = $1;";
 		await pool.query(projectQuery, [clientId]);
 		const query = "DELETE FROM clients WHERE id = $1;";
 		await pool.query(query, [clientId]);
 	}
 
-	static async getClientProjects(clientId: number) {
+	static async getClientProjects(clientId: string) {
 		const query = "SELECT * FROM projects WHERE cid = $1";
 		const { rows } = await pool.query(query, [clientId]);
 		return rows;
 	}
 
-	static async getClientProjectsByActive(clientId:number, active=true) {
+	static async getClientProjectsByActive(clientId:string, active="true") {
 		const query = "SELECT * FROM projects WHERE cid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [clientId, active]);
 		return rows;
 	}
 }
-
-module.exports = {
-	Clients
-};

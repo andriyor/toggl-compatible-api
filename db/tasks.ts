@@ -2,7 +2,7 @@ import pool from './db';
 import {Task} from "../models/Task";
 const { TimeEntries } = require("./timeEntries");
 
-class Tasks {
+export class Tasks {
 	static async create(task: Task) {
 		const query = `INSERT INTO tasks(name, pid, wid, uid, estimated_seconds, active, at, tracked_seconds)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
@@ -20,7 +20,7 @@ class Tasks {
 		return rows[0];
 	}
 
-	static async findByID(taskId: number) {
+	static async findByID(taskId: string) {
 		const query = "SELECT * FROM tasks WHERE id = $1";
 		const { rows } = await pool.query(query, [taskId]);
 		return rows[0];
@@ -39,7 +39,7 @@ class Tasks {
 		];
 	}
 
-	static async updateOne(taskId: number, task: Task) {
+	static async updateOne(taskId: string, task: Task) {
 		const findOneQuery = "SELECT * FROM tasks WHERE id = $1";
 		const result = await pool.query(findOneQuery, [taskId]);
 
@@ -58,7 +58,7 @@ class Tasks {
 		return rows[0];
 	}
 
-	static async destroy(taskId: number) {
+	static async destroy(taskId: string) {
 		await TimeEntries.unsetTask(taskId);
 		const query = "DELETE FROM tasks WHERE id = $1;";
 		await pool.query(query, [taskId]);
@@ -69,7 +69,3 @@ class Tasks {
 		await pool.query(query, [projectId]);
 	}
 }
-
-module.exports = {
-	Tasks
-};

@@ -9,5 +9,5 @@ export interface TagBody {
 }
 
 export interface TagParams {
-	tag_id: number;
+	tag_id: string;
 }

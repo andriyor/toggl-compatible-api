@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
-const { Clients } = require("../../../db/clients");
+import { Clients } from "../../../db/clients";
+import { ClientBody, ClientParams, ClientQuery } from "../../../models/Client";
 const { responseClient } = require("../../../schema/schema");
 const { responseProject } = require("../../../schema/schema");
 
@@ -17,9 +18,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const { id, at, ...clientPost } = responseClient;
 	const { wid, ...clientPut } = clientPost;
 	const clientPostSchema = {
@@ -39,7 +38,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", clientPostSchema, async request => {
+	fastify.post<unknown, unknown, unknown, ClientBody>("/", clientPostSchema, async request => {
 		const client = await Clients.create(request.body.client);
 		return { data: client };
 	});
@@ -61,7 +60,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.get("/:client_id", clientByIdSchema, async request => {
+	fastify.get<unknown, ClientParams, unknown, unknown>("/:client_id", clientByIdSchema, async request => {
 		const client = await Clients.findByID(request.params.client_id);
 		return { data: client };
 	});
@@ -84,7 +83,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:client_id", clientPuttSchema, async request => {
+	fastify.put<unknown, ClientParams, unknown, ClientBody>("/:client_id", clientPuttSchema, async request => {
 		const client = await Clients.updateOne(request.params.client_id, request.body.client);
 		return { data: client };
 	});
@@ -96,7 +95,7 @@ module.exports = async (
 			params: clientIdParam
 		}
 	};
-	fastify.delete("/:client_id", clientDeleteSchema, async request => {
+	fastify.delete<unknown, ClientParams, unknown, unknown>("/:client_id", clientDeleteSchema, async request => {
 		await Clients.destroy(request.params.client_id);
 		return "OK";
 	});
@@ -122,10 +121,14 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:client_id/projects", clientProjectsSchema, async request => {
-		if (request.query.active === "both") {
-			return await Clients.getClientProjects(request.params.client_id);
+	fastify.get<ClientQuery, ClientParams, unknown, unknown>(
+		"/:client_id/projects",
+		clientProjectsSchema,
+		async request => {
+			if (request.query.active === "both") {
+				return await Clients.getClientProjects(request.params.client_id);
+			}
+			return await Clients.getClientProjectsByActive(request.params.client_id, request.query.active);
 		}
-		return await Clients.getClientProjectsByActive(request.params.client_id, request.query.active);
-	});
+	);
 };

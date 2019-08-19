@@ -53,7 +53,7 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 		type: "object",
 		properties: {
 			tag_id: {
-				type: "number",
+				type: "string",
 				description: "tag id"
 			}
 		}

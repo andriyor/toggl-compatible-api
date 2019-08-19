@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
-const { Tasks } = require("../../../db/tasks");
+import { Tasks } from "../../../db/tasks";
 import { TaskBody, TaskParams } from "../../../models/Task";
 const { responseTask } = require("../../../schema/schema");
 
