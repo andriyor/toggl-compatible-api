@@ -3,7 +3,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 
 import { Tags } from "../../../db/tags";
 import { responseTag } from "../../../schema/schema";
-import {TagBody, TagParams} from "../../../models/tag";
+import {TagBody, TagParams} from "../../../models/Tag";
 
 const successfulResponse = {
 	200: {
@@ -95,7 +95,7 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 		}
 	};
 	fastify.delete<unknown, TagParams, unknown, unknown>("/:tag_id", projectDeleteSchema, async request => {
-		await Tags.destroy(<number>request.params.tag_id);
+		await Tags.destroy(request.params.tag_id);
 		return "OK";
 	});
 };

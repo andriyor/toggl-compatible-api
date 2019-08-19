@@ -1,8 +1,9 @@
 import pool from './db';
+import {Task} from "../models/Task";
 const { TimeEntries } = require("./timeEntries");
 
 class Tasks {
-	static async create(task: any) {
+	static async create(task: Task) {
 		const query = `INSERT INTO tasks(name, pid, wid, uid, estimated_seconds, active, at, tracked_seconds)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
 		const values = [
@@ -25,7 +26,7 @@ class Tasks {
 		return rows[0];
 	}
 
-	static getValues(task: any, oldTask: any) {
+	static getValues(task: Task, oldTask: Task) {
 		return [
 			task.name || oldTask.name,
 			task.pid || oldTask.pid,
@@ -38,7 +39,7 @@ class Tasks {
 		];
 	}
 
-	static async updateOne(taskId: number, task: any) {
+	static async updateOne(taskId: number, task: Task) {
 		const findOneQuery = "SELECT * FROM tasks WHERE id = $1";
 		const result = await pool.query(findOneQuery, [taskId]);
 

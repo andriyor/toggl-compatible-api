@@ -1,5 +1,5 @@
 import pool from './db';
-import { Tag } from "../models/tag";
+import { Tag } from "../models/Tag";
 
 export class Tags {
 	static async create(tag: Tag) {

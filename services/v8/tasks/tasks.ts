@@ -2,6 +2,7 @@ import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
 const { Tasks } = require("../../../db/tasks");
+import { TaskBody, TaskParams } from "../../../models/Task";
 const { responseTask } = require("../../../schema/schema");
 
 const successfulResponse = {
@@ -17,9 +18,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const { id, at, ...taskPost } = responseTask;
 	const taskPostPutSchema = {
 		schema: {
@@ -38,7 +37,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", taskPostPutSchema, async (request, reply) => {
+	fastify.post<unknown, unknown, unknown, TaskBody>("/", taskPostPutSchema, async (request, reply) => {
 		try {
 			const group = await Tasks.create(request.body.task);
 			return { data: group };
@@ -66,7 +65,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.get("/:task_id", taskByIdSchema, async request => {
+	fastify.get<unknown, TaskParams, unknown, unknown>("/:task_id", taskByIdSchema, async request => {
 		const task = await Tasks.findByID(request.params.task_id);
 		return { data: task };
 	});
@@ -88,7 +87,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:task_id", taskPuttSchema, async request => {
+	fastify.put<unknown, TaskParams, unknown, TaskBody>("/:task_id", taskPuttSchema, async request => {
 		const task = await Tasks.updateOne(request.params.task_id, request.body.task);
 		return { data: task };
 	});
@@ -100,7 +99,7 @@ module.exports = async (
 			params: taskIdParam
 		}
 	};
-	fastify.delete("/:task_id", taskDeleteSchema, async request => {
+	fastify.delete<unknown, TaskParams, unknown, unknown>("/:task_id", taskDeleteSchema, async request => {
 		const taskIds = request.params.task_id.split(",");
 		for (const taskId of taskIds) {
 			await Tasks.destroy(taskId);
