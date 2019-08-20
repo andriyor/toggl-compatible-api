@@ -3,7 +3,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 
 const auth = require("basic-auth");
 import { TimeEntries } from "../../../db/timeEntries";
-import {TimeEntryBody, TimeEntryParams, TimeEntryQuery} from "../../../models/TimeEntry";
+import { TimeEntryBody, TimeEntryParams, TimeEntryQuery } from "../../../models/TimeEntry";
 const { Users } = require("../../../db/me");
 
 const responseTimeEntries = {

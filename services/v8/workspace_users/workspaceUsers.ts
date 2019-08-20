@@ -1,7 +1,9 @@
-const { WorkspaceUsers } = require("../../../db/workspaceUsers");
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
-const { responseWorkspaceUsers } = require("../../../schema/schema");
+
+import {WorkspaceUserParams, WorkspaceUsersBody} from "../../../models/WorkspaceUser";
+import { WorkspaceUsers } from "../../../db/workspaceUsers";
+import { responseWorkspaceUsers } from "../../../schema/schema";
 
 const { invite_url, ...workspaceUsersUpdate } = responseWorkspaceUsers;
 
@@ -17,9 +19,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const { id, ...workspaceUsersPost } = workspaceUsersUpdate;
 	const workspaceUsersIdParam = {
 		type: "object",
@@ -47,11 +47,8 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:workspace_user_id", workspaceUsersPutSchema, async request => {
-		const task = await WorkspaceUsers.updateOne(
-			request.params.workspace_user_id,
-			request.body.workspace_user
-		);
+	fastify.put<unknown, WorkspaceUserParams, unknown, WorkspaceUsersBody>("/:workspace_user_id", workspaceUsersPutSchema, async request => {
+		const task = await WorkspaceUsers.updateOne(request.params.workspace_user_id, request.body.workspace_user);
 		return { data: task };
 	});
 
@@ -62,7 +59,7 @@ module.exports = async (
 			params: workspaceUsersIdParam
 		}
 	};
-	fastify.delete("/:workspace_user_id", WorkspaceUsersDeleteSchema, async request => {
+	fastify.delete<unknown, WorkspaceUserParams, unknown, unknown>("/:workspace_user_id", WorkspaceUsersDeleteSchema, async request => {
 		await WorkspaceUsers.destroy(request.params.workspace_user_id);
 		return "OK";
 	});

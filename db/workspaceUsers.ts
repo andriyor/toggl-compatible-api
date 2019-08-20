@@ -1,7 +1,8 @@
 import pool from './db';
+import {WorkspaceUser} from "../models/WorkspaceUser";
 
-class WorkspaceUsers {
-	static getValues(workspaceUsers: any, oldWorkspaceUsers: any) {
+export class WorkspaceUsers {
+	static getValues(workspaceUsers: WorkspaceUser, oldWorkspaceUsers: WorkspaceUser) {
 		return [
 			workspaceUsers.uid || oldWorkspaceUsers.uid,
 			workspaceUsers.wid || oldWorkspaceUsers.wid,
@@ -10,7 +11,7 @@ class WorkspaceUsers {
 		];
 	}
 
-	static async updateOne(workspaceUsersId: number, workspaceUsers: any) {
+	static async updateOne(workspaceUsersId: string, workspaceUsers: WorkspaceUser) {
 		const findOneWorkspaceUsersQuery = "SELECT * FROM workspace_users WHERE id = $1";
 		const result = await pool.query(findOneWorkspaceUsersQuery, [workspaceUsersId]);
 		const updateOneWorkspaceQuery = `UPDATE workspace_users
@@ -24,12 +25,8 @@ class WorkspaceUsers {
 		return rows[0];
 	}
 
-	static async destroy(workspaceUsersId: number) {
+	static async destroy(workspaceUsersId: string) {
 		const query = "DELETE FROM workspace_users WHERE id = $1;";
 		await pool.query(query, [workspaceUsersId]);
 	}
 }
-
-module.exports = {
-	WorkspaceUsers
-};
