@@ -1,7 +1,8 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
+import {ProjectBody, ProjectParams} from "../../../models/Project";
 
-const { Projects } = require("../../../db/projects");
+import { Projects } from "../../../db/projects";
 
 const { responseProject } = require("../../../schema/schema");
 const { responseProjectUsers } = require("../../../schema/schema");
@@ -20,9 +21,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const projectIdParam = {
 		type: "object",
 		properties: {
@@ -41,7 +40,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.get("/:project_id", projectByIdSchema, async request => {
+	fastify.get<unknown, ProjectParams, unknown, unknown>("/:project_id", projectByIdSchema, async request => {
 		const project = await Projects.getById(request.params.project_id);
 		return { data: project };
 	});
@@ -64,7 +63,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", projectPostSchema, async (request, reply) => {
+	fastify.post<unknown, unknown, unknown, ProjectBody>("/", projectPostSchema, async (request, reply) => {
 		try {
 			const project = await Projects.create(request.body.project);
 			return { data: project };
@@ -91,7 +90,7 @@ module.exports = async (
 			summary: "Update project data"
 		}
 	};
-	fastify.put("/:project_id", updateProjectSchema, async request => {
+	fastify.put<unknown, ProjectParams, unknown, ProjectBody>("/:project_id", updateProjectSchema, async request => {
 		const project = await Projects.updateOne(request.params.project_id, request.body.project);
 		return { data: project };
 	});
@@ -103,7 +102,7 @@ module.exports = async (
 			params: projectIdParam
 		}
 	};
-	fastify.delete("/:project_id", projectDeleteSchema, async request => {
+	fastify.delete<unknown, ProjectParams, unknown, unknown>("/:project_id", projectDeleteSchema, async request => {
 		const projectIds = request.params.project_id.split(",");
 		for (const projectId of projectIds) {
 			await Projects.destroy(projectId);
@@ -127,7 +126,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:project_id/project_users", projectUsersByProjectIdSchema, async request => {
+	fastify.get<unknown, ProjectParams, unknown, unknown>("/:project_id/project_users", projectUsersByProjectIdSchema, async request => {
 		return await Projects.getProjectUsersByProjectId(request.params.project_id);
 	});
 
@@ -147,7 +146,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:project_id/tasks", projectTasksByProjectIdSchema, async request => {
+	fastify.get<unknown, ProjectParams, unknown, unknown>("/:project_id/tasks", projectTasksByProjectIdSchema, async request => {
 		return await Projects.getTasksByProjectId(request.params.project_id);
 	});
 };

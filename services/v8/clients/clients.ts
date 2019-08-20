@@ -2,8 +2,8 @@ import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { Clients } from "../../../db/clients";
 import { ClientBody, ClientParams, ClientQuery } from "../../../models/Client";
-const { responseClient } = require("../../../schema/schema");
-const { responseProject } = require("../../../schema/schema");
+import { responseClient } from "../../../schema/schema";
+import { responseProject } from "../../../schema/schema";
 
 const successfulResponse = {
 	200: {

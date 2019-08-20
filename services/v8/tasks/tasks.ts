@@ -3,7 +3,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 
 import { Tasks } from "../../../db/tasks";
 import { TaskBody, TaskParams } from "../../../models/Task";
-const { responseTask } = require("../../../schema/schema");
+import { responseTask } from "../../../schema/schema";
 
 const successfulResponse = {
 	200: {

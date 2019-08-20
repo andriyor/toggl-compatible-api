@@ -64,7 +64,7 @@ export class Tasks {
 		await pool.query(query, [taskId]);
 	}
 
-	static async destroyByProjectId(projectId: number) {
+	static async destroyByProjectId(projectId: string) {
 		const query = "DELETE FROM tasks WHERE pid = $1;";
 		await pool.query(query, [projectId]);
 	}
