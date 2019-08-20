@@ -1,9 +1,9 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
-const { Groups } = require("../../../db/groups");
-
-const { responseGroup } = require("../../../schema/schema");
+import {GroupBody, GroupParams} from "../../../models/Group";
+import { Groups } from "../../../db/groups";
+import { responseGroup } from "../../../schema/schema";
 
 const successfulResponse = {
 	200: {
@@ -18,9 +18,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const { id, ...groupPost } = responseGroup;
 	const groupPostPutSchema = {
 		schema: {
@@ -39,7 +37,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", groupPostPutSchema, async (request, reply) => {
+	fastify.post<unknown, unknown, unknown, GroupBody>("/", groupPostPutSchema, async (request, reply) => {
 		try {
 			const group = await Groups.create(request.body.group);
 			return { data: group };
@@ -78,7 +76,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:group_id", updateTagSchema, async request => {
+	fastify.put<unknown, GroupParams, unknown, GroupBody>("/:group_id", updateTagSchema, async request => {
 		const group = await Groups.updateOne(request.params.group_id, request.body.group);
 		return { data: group };
 	});
@@ -90,7 +88,7 @@ module.exports = async (
 			params: groupIdParam
 		}
 	};
-	fastify.delete("/:group_id", groupDeleteSchema, async request => {
+	fastify.delete<unknown, GroupParams, unknown, unknown>("/:group_id", groupDeleteSchema, async request => {
 		await Groups.destroy(request.params.group_id);
 		return "OK";
 	});
