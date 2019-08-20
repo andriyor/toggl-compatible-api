@@ -1,8 +1,10 @@
-import pool from './db';
-import {TimeEntry} from "../models/TimeEntry";
+import pool from "./db";
+
+import { TimeEntry } from "../models/TimeEntry";
+import { User } from "../models/User";
 
 export class TimeEntries {
-	static async getRunningTimeEntries() {
+	static async getRunningTimeEntries(): Promise<TimeEntry[]> {
 		const runningTimeEntryQuery = "SELECT * FROM time_entries WHERE stop IS NULL";
 		const { rows } = await pool.query(runningTimeEntryQuery);
 		return rows;
@@ -36,7 +38,7 @@ export class TimeEntries {
 		];
 	}
 
-	static async create(timeEntry: TimeEntry, user: any) {
+	static async create(timeEntry: TimeEntry, user: User): Promise<TimeEntry> {
 		const query = `INSERT INTO time_entries(pid, wid, uid, created_with, billable, description, tags, start, at, duration)
                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const nowDate = new Date();
@@ -58,13 +60,13 @@ export class TimeEntries {
 		return rows[0];
 	}
 
-	static async getById(timeEntryId: string) {
+	static async getById(timeEntryId: string): Promise<TimeEntry> {
 		const query = "SELECT * FROM time_entries WHERE id = $1";
 		const { rows } = await pool.query(query, [timeEntryId]);
 		return rows[0];
 	}
 
-	static async updateOne(timeEntryId: string, timeEntry: TimeEntry) {
+	static async updateOne(timeEntryId: string, timeEntry: TimeEntry): Promise<TimeEntry> {
 		const findOneTimeEntryQuery = "SELECT * FROM time_entries WHERE id = $1";
 		const result = await pool.query(findOneTimeEntryQuery, [timeEntryId]);
 		const updateOneQuery = `UPDATE time_entries
@@ -85,7 +87,7 @@ export class TimeEntries {
 		return rows[0];
 	}
 
-	static async getTimeEntriesByTimeRange(startDate: Date, endDate: Date) {
+	static async getTimeEntriesByTimeRange(startDate: Date, endDate: Date): Promise<TimeEntry[]> {
 		const query = "SELECT * FROM time_entries WHERE stop BETWEEN $1 AND $2";
 		const { rows } = await pool.query(query, [startDate, endDate]);
 		return rows;

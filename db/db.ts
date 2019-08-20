@@ -1,4 +1,4 @@
-const { Pool } = require("pg");
+import { Pool } from "pg";
 
 const config = {
 	user: "postgres", //this is the db user credential

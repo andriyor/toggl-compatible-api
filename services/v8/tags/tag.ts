@@ -3,7 +3,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 
 import { Tags } from "../../../db/tags";
 import { responseTag } from "../../../schema/schema";
-import {TagBody, TagParams} from "../../../models/Tag";
+import { TagBody, TagParams } from "../../../models/Tag";
 
 const successfulResponse = {
 	200: {

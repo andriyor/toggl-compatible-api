@@ -1,6 +1,6 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
-import {ProjectBody, ProjectParams} from "../../../models/Project";
+import { ProjectBody, ProjectParams } from "../../../models/Project";
 
 import { Projects } from "../../../db/projects";
 

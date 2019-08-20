@@ -1,11 +1,15 @@
-import pool from './db';
-import {Project} from "../models/Project";
-const { TimeEntries } = require("./timeEntries");
+import pool from "./db";
+
+import { TimeEntries } from "./timeEntries";
 import { Tasks } from "./tasks";
-const { ProjectUsers } = require("./projectUsers");
+import { ProjectUsers } from "./projectUsers";
+
+import { Project } from "../models/Project";
+import { Task } from "../models/Task";
+import { ProjectUser } from "../models/ProjectUser";
 
 export class Projects {
-	static async getById(projectId: string) {
+	static async getById(projectId: string): Promise<Project> {
 		const query = "SELECT * FROM projects WHERE id = $1";
 		const { rows } = await pool.query(query, [projectId]);
 		return rows[0];
@@ -29,7 +33,7 @@ export class Projects {
 		];
 	}
 
-	static async create(project: Project) {
+	static async create(project: Project): Promise<Project> {
 		const createProjectQuery = `INSERT INTO projects(name, wid, cid, active, is_private, template, template_id,
                                                      billable, auto_estimates, estimated_hours, at, color, rate)
                                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`;
@@ -38,7 +42,7 @@ export class Projects {
 		return rows[0];
 	}
 
-	static async updateOne(projectId: string, project: Project) {
+	static async updateOne(projectId: string, project: Project): Promise<Project> {
 		const findOneProjectQuery = "SELECT * FROM projects WHERE id = $1";
 		const result = await pool.query(findOneProjectQuery, [projectId]);
 
@@ -70,13 +74,13 @@ export class Projects {
 		await pool.query(query, [projectId]);
 	}
 
-	static async getProjectUsersByProjectId(projectId: string) {
+	static async getProjectUsersByProjectId(projectId: string): Promise<ProjectUser[]> {
 		const query = "SELECT * FROM project_users WHERE pid = $1";
 		const { rows } = await pool.query(query, [projectId]);
 		return rows;
 	}
 
-	static async getTasksByProjectId(projectId: string) {
+	static async getTasksByProjectId(projectId: string): Promise<Task[]> {
 		const query = "SELECT * FROM tasks WHERE pid = $1";
 		const { rows } = await pool.query(query, [projectId]);
 		return rows;

@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
-import {GroupBody, GroupParams} from "../../../models/Group";
+import { GroupBody, GroupParams } from "../../../models/Group";
 import { Groups } from "../../../db/groups";
 import { responseGroup } from "../../../schema/schema";
 

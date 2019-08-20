@@ -7,7 +7,8 @@ export interface ProjectUser extends BaseEntity{
 	manager: boolean;
 	rate: number;
 	at: string;
-	fields: string
+	fields: string;
+	fullname?: string
 }
 
 export interface ProjectUsersBody {

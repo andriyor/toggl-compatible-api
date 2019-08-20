@@ -1,8 +1,9 @@
-import pool from './db';
+import pool from "./db";
+
 import { Tag } from "../models/Tag";
 
 export class Tags {
-	static async create(tag: Tag) {
+	static async create(tag: Tag): Promise<Tag> {
 		const query = `INSERT INTO tags(name, wid)
                    VALUES ($1, $2) RETURNING *`;
 		const projectUserValues = [tag.name, tag.wid];
@@ -10,7 +11,7 @@ export class Tags {
 		return rows[0];
 	}
 
-	static async updateOne(tagId: string, tag: Tag) {
+	static async updateOne(tagId: string, tag: Tag): Promise<Tag> {
 		const query = `UPDATE tags
                    SET name=$1
                    WHERE id = $2 RETURNING *`;

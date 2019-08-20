@@ -1,10 +1,11 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
+import auth from "basic-auth";
 
-const auth = require("basic-auth");
 import { TimeEntries } from "../../../db/timeEntries";
 import { TimeEntryBody, TimeEntryParams, TimeEntryQuery } from "../../../models/TimeEntry";
-const { Users } = require("../../../db/me");
+import { AuthorizationHeader } from "../../../models/AuthorizationHeader";
+import { Users } from "../../../db/me";
 
 const responseTimeEntries = {
 	id: {
@@ -109,8 +110,9 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 			response: successfulResponse
 		}
 	};
-	fastify.post<unknown, unknown, any, TimeEntryBody>("/", timeEntriesPostPutSchema, async request => {
+	fastify.post<unknown, unknown, AuthorizationHeader, TimeEntryBody>("/", timeEntriesPostPutSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
+		// @ts-ignore
 		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };
@@ -134,12 +136,13 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 			response: successfulResponse
 		}
 	};
-	fastify.post<unknown, unknown, any, TimeEntryBody>("/start", timeEntriesStartSchema, async request => {
+	fastify.post<unknown, unknown, AuthorizationHeader, TimeEntryBody>("/start", timeEntriesStartSchema, async request => {
 		const runningTimeEntries = await TimeEntries.getRunningTimeEntries();
 		if (runningTimeEntries.length) {
-			await TimeEntries.stopTimeEntry(runningTimeEntries[0].duration, runningTimeEntries[0].id);
+			await TimeEntries.stopTimeEntry(runningTimeEntries[0].duration, String(runningTimeEntries[0].id));
 		}
 		const currentUser = auth.parse(request.headers.authorization);
+		// @ts-ignore
 		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
 		return { data: timeEntry };

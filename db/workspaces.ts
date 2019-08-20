@@ -1,8 +1,17 @@
-import pool from './db';
-import {Workspace} from "../models/Workspace";
+import pool from "./db";
+
+import { Workspace } from "../models/Workspace";
+import { User } from "../models/User";
+import { Client } from "../models/Client";
+import { Group } from "../models/Group";
+import { Project } from "../models/Project";
+import { Task } from "../models/Task";
+import { Tag } from "../models/Tag";
+import { ProjectUser } from "../models/ProjectUser";
+import { WorkspaceUser } from "../models/WorkspaceUser";
 
 export class Workspaces {
-	static async getById(workspaceId: string) {
+	static async getById(workspaceId: string): Promise<Workspace> {
 		const query = "SELECT * FROM workspaces WHERE id = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows[0];
@@ -27,7 +36,7 @@ export class Workspaces {
 		];
 	}
 
-	static async updateOne(workspace: Workspace, workspace_id: string) {
+	static async updateOne(workspace: Workspace, workspace_id: string): Promise<Workspace> {
 		const findOneWorkspaceQuery = "SELECT * FROM projects WHERE id = $1";
 		const result = await pool.query(findOneWorkspaceQuery, [workspace_id]);
 
@@ -48,7 +57,7 @@ export class Workspaces {
 		return rows[0];
 	}
 
-	static async getWorkspacesByUserId(userId: string) {
+	static async getWorkspacesByUserId(userId: number): Promise<Workspace[]> {
 		const userWorkspacesQuery = `SELECT workspaces.id,
                                         name,
                                         premium,
@@ -68,7 +77,7 @@ export class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceUsersByWorkspaceId(workspace_id: string) {
+	static async getWorkspaceUsersByWorkspaceId(workspace_id: string): Promise<User[]> {
 		const query = `SELECT users.id,
                           api_token,
                           default_wid,
@@ -95,7 +104,7 @@ export class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceClientsByWorkspaceId(workspaceId: string) {
+	static async getWorkspaceClientsByWorkspaceId(workspaceId: string): Promise<Client[]> {
 		const query = `SELECT clients.id,
                           clients.name,
                           wid,
@@ -110,49 +119,49 @@ export class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceGroupsByWorkspaceId(workspaceId: string) {
+	static async getWorkspaceGroupsByWorkspaceId(workspaceId: string): Promise<Group[]> {
 		const query = "SELECT * FROM groups WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceProjectsByActive(workspaceId: string, active = "true") {
+	static async getWorkspaceProjectsByActive(workspaceId: string, active = "true"): Promise<Project[]> {
 		const query = "SELECT * FROM projects WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
 	}
 
-	static async getWorkspaceProjects(workspaceId: string) {
+	static async getWorkspaceProjects(workspaceId: string): Promise<Project[]> {
 		const query = "SELECT * FROM projects WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceTasksByActive(workspaceId: string, active = "true") {
+	static async getWorkspaceTasksByActive(workspaceId: string, active = "true"): Promise<Task[]> {
 		const query = "SELECT * FROM tasks WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
 	}
 
-	static async getWorkspaceTasks(workspaceId: string) {
+	static async getWorkspaceTasks(workspaceId: string): Promise<Task[]> {
 		const query = "SELECT * FROM tasks WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceTags(workspaceId: string) {
+	static async getWorkspaceTags(workspaceId: string): Promise<Tag[]> {
 		const query = "SELECT * FROM tags WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceProjectUsers(workspaceId: string) {
+	static async getWorkspaceProjectUsers(workspaceId: string): Promise<ProjectUser[]> {
 		const query = "SELECT * FROM project_users WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceWorkspaceUsers(workspaceId: string) {
+	static async getWorkspaceWorkspaceUsers(workspaceId: string): Promise<WorkspaceUser[]> {
 		const query = `SELECT workspace_users.*, users.email, users.fullname AS name, users.at
                    FROM workspace_users
                             RIGHT JOIN users ON users.id = workspace_users.uid

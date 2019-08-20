@@ -1,6 +1,6 @@
 const faker = require("faker");
 import crypto from "crypto";
-const { pool } = require("./db");
+import pool from "./db";
 
 const usersTable = `CREATE TABLE IF NOT EXISTS
                         users

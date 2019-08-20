@@ -1,17 +1,18 @@
-import pool from './db';
-import {WorkspaceUser} from "../models/WorkspaceUser";
+import pool from "./db";
+
+import { WorkspaceUser } from "../models/WorkspaceUser";
 
 export class WorkspaceUsers {
 	static getValues(workspaceUsers: WorkspaceUser, oldWorkspaceUsers: WorkspaceUser) {
 		return [
 			workspaceUsers.uid || oldWorkspaceUsers.uid,
 			workspaceUsers.wid || oldWorkspaceUsers.wid,
-			workspaceUsers.hasOwnProperty('admin') ? workspaceUsers.admin : oldWorkspaceUsers.admin,
-			workspaceUsers.hasOwnProperty('active') ? workspaceUsers.active : oldWorkspaceUsers.active
+			workspaceUsers.hasOwnProperty("admin") ? workspaceUsers.admin : oldWorkspaceUsers.admin,
+			workspaceUsers.hasOwnProperty("active") ? workspaceUsers.active : oldWorkspaceUsers.active
 		];
 	}
 
-	static async updateOne(workspaceUsersId: string, workspaceUsers: WorkspaceUser) {
+	static async updateOne(workspaceUsersId: string, workspaceUsers: WorkspaceUser): Promise<WorkspaceUser> {
 		const findOneWorkspaceUsersQuery = "SELECT * FROM workspace_users WHERE id = $1";
 		const result = await pool.query(findOneWorkspaceUsersQuery, [workspaceUsersId]);
 		const updateOneWorkspaceQuery = `UPDATE workspace_users

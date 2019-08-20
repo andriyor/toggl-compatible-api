@@ -1,5 +1,6 @@
-import pool from './db';
-import {ProjectUser} from "../models/ProjectUser";
+import pool from "./db";
+
+import { ProjectUser } from "../models/ProjectUser";
 
 export class ProjectUsers {
 	static getValues(projectUser: ProjectUser, oldProjectUser: ProjectUser) {
@@ -13,7 +14,7 @@ export class ProjectUsers {
 		];
 	}
 
-	static async create(projectUser: ProjectUser) {
+	static async create(projectUser: ProjectUser): Promise<ProjectUser> {
 		const createProjectUserQuery = `INSERT INTO project_users(pid, uid, wid, manager, rate, at)
                                     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
 		const projectUserValues = ProjectUsers.getValues(projectUser, {} as ProjectUser);
@@ -29,13 +30,13 @@ export class ProjectUsers {
 		];
 	}
 
-	static async getById(projectUserId: string) {
+	static async getById(projectUserId: string): Promise<ProjectUser> {
 		const query = "SELECT * FROM project_users WHERE id = $1";
 		const { rows } = await pool.query(query, [projectUserId]);
 		return rows[0];
 	}
 
-	static async updateOne(projectUserId: string, projectUser: ProjectUser) {
+	static async updateOne(projectUserId: string, projectUser: ProjectUser): Promise<ProjectUser> {
 		const findOneQuery = "SELECT * FROM project_users WHERE id = $1";
 		const result = await pool.query(findOneQuery, [projectUserId]);
 
@@ -53,7 +54,7 @@ export class ProjectUsers {
 		}
 	}
 
-	static async getWithFullname(projectUsersId: string) {
+	static async getWithFullname(projectUsersId: string): Promise<ProjectUser> {
 		const findOneQuery = `SELECT project_users.*, users.fullname
                           FROM project_users
                                    right join users on Users.id = project_users.uid

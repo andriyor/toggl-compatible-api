@@ -3,7 +3,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 
 import { ProjectUsers } from "../../../db/projectUsers";
 import { responseProjectUsers } from "../../../schema/schema";
-import {ProjectUsersBody, ProjectUsersParams} from "../../../models/ProjectUser";
+import { ProjectUsersBody, ProjectUsersParams } from "../../../models/ProjectUser";
 
 const successfulResponse = {
 	200: {

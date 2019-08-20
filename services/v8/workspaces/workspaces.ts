@@ -1,11 +1,10 @@
-import {WorkspaceBody, WorkspaceParams} from "../../../models/Workspace";
-
-const auth = require("basic-auth");
+import auth from "basic-auth";
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
 import { Users } from "../../../db/users";
 import { Workspaces } from "../../../db/workspaces";
+
 import { responseUser } from "../../../schema/schema";
 import { responseClient } from "../../../schema/schema";
 import { responseGroup } from "../../../schema/schema";
@@ -14,7 +13,10 @@ import { responseTask } from "../../../schema/schema";
 import { responseTag } from "../../../schema/schema";
 import { responseProjectUsers } from "../../../schema/schema";
 import { responseWorkspaceUsers } from "../../../schema/schema";
-import {ActiveQuery} from "../../../models/ActiveQuery";
+
+import { WorkspaceBody, WorkspaceParams } from "../../../models/Workspace";
+import { ActiveQuery } from "../../../models/ActiveQuery";
+import { AuthorizationHeader } from "../../../models/AuthorizationHeader";
 
 const responseWorkspace = {
 	id: {
@@ -73,11 +75,13 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 	};
 	fastify.get("/", workspacesSchema, async (request, reply) => {
 		const user = auth.parse(request.headers.authorization);
+		// @ts-ignore
 		const users = await Users.findByUsername(user.name);
-		if (!users.length || users.password !== users.password) {
+		// @ts-ignore
+		if (!users.length || users[0].password !== user.password) {
 			reply.code(403).send();
 		} else {
-			return await Workspaces.getWorkspacesByUserId(users[0].id);
+			return await Workspaces.getWorkspacesByUserId(<number>users[0].id);
 		}
 	});
 
@@ -109,10 +113,12 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 			}
 		}
 	};
-	fastify.get<unknown, WorkspaceParams, any, unknown>("/:workspace_id", workspaceByIdSchema, async (request, reply) => {
+	fastify.get<unknown, WorkspaceParams, AuthorizationHeader, unknown>("/:workspace_id", workspaceByIdSchema, async (request, reply) => {
 		const user = auth.parse(request.headers.authorization);
+		// @ts-ignore
 		const users = await Users.findByUsername(user.name);
-		if (!users.length || users.password !== users.password) {
+		// @ts-ignore
+		if (!users.length || users[0].password !== user.password) {
 			reply.code(404).send();
 		} else {
 			const workspace = await Workspaces.getById(request.params.workspace_id);

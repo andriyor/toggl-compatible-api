@@ -1,9 +1,11 @@
-import pool from './db';
-import {Task} from "../models/Task";
-const { TimeEntries } = require("./timeEntries");
+import pool from "./db";
+
+import { Task } from "../models/Task";
+
+import { TimeEntries } from "./timeEntries";
 
 export class Tasks {
-	static async create(task: Task) {
+	static async create(task: Task): Promise<Task> {
 		const query = `INSERT INTO tasks(name, pid, wid, uid, estimated_seconds, active, at, tracked_seconds)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
 		const values = [
@@ -20,7 +22,7 @@ export class Tasks {
 		return rows[0];
 	}
 
-	static async findByID(taskId: string) {
+	static async findByID(taskId: string): Promise<Task> {
 		const query = "SELECT * FROM tasks WHERE id = $1";
 		const { rows } = await pool.query(query, [taskId]);
 		return rows[0];
@@ -39,7 +41,7 @@ export class Tasks {
 		];
 	}
 
-	static async updateOne(taskId: string, task: Task) {
+	static async updateOne(taskId: string, task: Task): Promise<Task> {
 		const findOneQuery = "SELECT * FROM tasks WHERE id = $1";
 		const result = await pool.query(findOneQuery, [taskId]);
 

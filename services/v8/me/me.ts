@@ -1,10 +1,10 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
+import { AuthorizationHeader } from "../../../models/AuthorizationHeader";
+import auth from "basic-auth";
 
-const auth = require("basic-auth");
-
-const { Users } = require("../../../db/me");
-const { responseUser } = require("../../../schema/schema");
+import { Users } from "../../../db/me";
+import { responseUser } from "../../../schema/schema";
 
 const successfulResponse = {
 	200: {
@@ -19,9 +19,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const userSchema = {
 		schema: {
 			tags: ["user"],
@@ -29,8 +27,9 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.get("/", userSchema, async request => {
+	fastify.get<unknown, unknown, AuthorizationHeader, unknown>("/", userSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
+		// @ts-ignore
 		const user = await Users.getByToken(currentUser.name);
 		return { data: user };
 	});

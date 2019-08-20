@@ -1,8 +1,8 @@
-import pool from './db';
-import {Group} from "../models/Group";
+import pool from "./db";
+import { Group } from "../models/Group";
 
 export class Groups {
-	static async create(group: Group) {
+	static async create(group: Group): Promise<Group> {
 		const query = `INSERT INTO groups(name, wid, at)
                    VALUES ($1, $2, $3) RETURNING *`;
 		const values = [group.name, group.wid, new Date()];
@@ -10,7 +10,7 @@ export class Groups {
 		return rows[0];
 	}
 
-	static async updateOne(groupId: string, group: Group) {
+	static async updateOne(groupId: string, group: Group): Promise<Group> {
 		const query = `UPDATE groups
                    SET name=$1,
                        at=$2
