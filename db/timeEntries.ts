@@ -1,13 +1,14 @@
 import pool from './db';
+import {TimeEntry} from "../models/TimeEntry";
 
-class TimeEntries {
+export class TimeEntries {
 	static async getRunningTimeEntries() {
 		const runningTimeEntryQuery = "SELECT * FROM time_entries WHERE stop IS NULL";
 		const { rows } = await pool.query(runningTimeEntryQuery);
 		return rows;
 	}
 
-	static async stopTimeEntry(duration: number, timeEntryId: number) {
+	static async stopTimeEntry(duration: number, timeEntryId: string) {
 		const nowDate = new Date();
 		// @ts-ignore
 		const newDuration = Math.floor(nowDate / 1000) + duration;
@@ -19,7 +20,7 @@ class TimeEntries {
 		return await pool.query(updateOneQuery, [newDuration, nowDate, timeEntryId]);
 	}
 
-	static getValues(time_entry: any, oldTimeEntry: any) {
+	static getValues(time_entry: TimeEntry, oldTimeEntry: TimeEntry) {
 		return [
 			time_entry.pid || oldTimeEntry.pid,
 			time_entry.wid || oldTimeEntry.wid,
@@ -35,7 +36,7 @@ class TimeEntries {
 		];
 	}
 
-	static async create(timeEntry: any, user: any) {
+	static async create(timeEntry: TimeEntry, user: any) {
 		const query = `INSERT INTO time_entries(pid, wid, uid, created_with, billable, description, tags, start, at, duration)
                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
 		const nowDate = new Date();
@@ -57,13 +58,13 @@ class TimeEntries {
 		return rows[0];
 	}
 
-	static async getById(timeEntryId: number) {
+	static async getById(timeEntryId: string) {
 		const query = "SELECT * FROM time_entries WHERE id = $1";
 		const { rows } = await pool.query(query, [timeEntryId]);
 		return rows[0];
 	}
 
-	static async updateOne(timeEntryId: number, timeEntry: any) {
+	static async updateOne(timeEntryId: string, timeEntry: TimeEntry) {
 		const findOneTimeEntryQuery = "SELECT * FROM time_entries WHERE id = $1";
 		const result = await pool.query(findOneTimeEntryQuery, [timeEntryId]);
 		const updateOneQuery = `UPDATE time_entries
@@ -90,22 +91,18 @@ class TimeEntries {
 		return rows;
 	}
 
-	static async destroy(timeEntryId: number) {
+	static async destroy(timeEntryId: string) {
 		const query = "DELETE FROM time_entries WHERE id = $1;";
 		await pool.query(query, [timeEntryId]);
 	}
 
-	static async unsetProject(projectId: number) {
+	static async unsetProject(projectId: string) {
 		const query = "UPDATE time_entries SET pid=NULL WHERE pid = $1;";
 		await pool.query(query, [projectId]);
 	}
 
-	static async unsetTask(taskId: number) {
+	static async unsetTask(taskId: string) {
 		const query = "UPDATE time_entries SET tid=NULL WHERE tid = $1;";
 		await pool.query(query, [taskId]);
 	}
 }
-
-module.exports = {
-	TimeEntries
-};

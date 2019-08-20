@@ -2,7 +2,8 @@ import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
 const auth = require("basic-auth");
-const { TimeEntries } = require("../../../db/timeEntries");
+import { TimeEntries } from "../../../db/timeEntries";
+import {TimeEntryBody, TimeEntryParams, TimeEntryQuery} from "../../../models/TimeEntry";
 const { Users } = require("../../../db/me");
 
 const responseTimeEntries = {
@@ -67,9 +68,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const timeEntryIdParam = {
 		type: "object",
 		properties: {
@@ -88,7 +87,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.get("/:time_entry_id", timeEntryByIDSchema, async request => {
+	fastify.get<unknown, TimeEntryParams, unknown, unknown>("/:time_entry_id", timeEntryByIDSchema, async request => {
 		const timeEntry = await TimeEntries.getById(request.params.time_entry_id);
 		return { data: timeEntry };
 	});
@@ -110,7 +109,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", timeEntriesPostPutSchema, async request => {
+	fastify.post<unknown, unknown, any, TimeEntryBody>("/", timeEntriesPostPutSchema, async request => {
 		const currentUser = auth.parse(request.headers.authorization);
 		const user = await Users.getByToken(currentUser.name);
 		const timeEntry = await TimeEntries.create(request.body.time_entry, user);
@@ -135,7 +134,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/start", timeEntriesStartSchema, async request => {
+	fastify.post<unknown, unknown, any, TimeEntryBody>("/start", timeEntriesStartSchema, async request => {
 		const runningTimeEntries = await TimeEntries.getRunningTimeEntries();
 		if (runningTimeEntries.length) {
 			await TimeEntries.stopTimeEntry(runningTimeEntries[0].duration, runningTimeEntries[0].id);
@@ -154,15 +153,12 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:time_entry_id/stop", timeEntryStopSchema, async request => {
+	fastify.put<unknown, TimeEntryParams, unknown, unknown>("/:time_entry_id/stop", timeEntryStopSchema, async request => {
 		const timeEntry = await TimeEntries.getById(request.params.time_entry_id);
 		if (timeEntry.stop) {
 			return "Time entry already stopped";
 		}
-		const result = await TimeEntries.stopTimeEntry(
-			timeEntry.duration,
-			request.params.time_entry_id
-		);
+		const result = await TimeEntries.stopTimeEntry(timeEntry.duration, request.params.time_entry_id);
 		return { data: result.rows[0] };
 	});
 
@@ -195,11 +191,8 @@ module.exports = async (
 			summary: "Update a time entry"
 		}
 	};
-	fastify.put("/:time_entry_id", updateTimeEntrySchema, async request => {
-		const timeEntry = await TimeEntries.updateOne(
-			request.params.time_entry_id,
-			request.body.time_entry
-		);
+	fastify.put<unknown, TimeEntryParams, unknown, TimeEntryBody>("/:time_entry_id", updateTimeEntrySchema, async request => {
+		const timeEntry = await TimeEntries.updateOne(request.params.time_entry_id, request.body.time_entry);
 		return { data: timeEntry };
 	});
 
@@ -210,7 +203,7 @@ module.exports = async (
 			params: timeEntryIdParam
 		}
 	};
-	fastify.delete("/:time_entry_id", timeEntryDeleteSchema, async request => {
+	fastify.delete<unknown, TimeEntryParams, unknown, unknown>("/:time_entry_id", timeEntryDeleteSchema, async request => {
 		await TimeEntries.destroy(request.params.time_entry_id);
 		return "OK";
 	});
@@ -243,10 +236,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/", timeEntriesRangeSchema, async request => {
-		return await TimeEntries.getTimeEntriesByTimeRange(
-			request.query.start_date,
-			request.query.end_date
-		);
+	fastify.get<TimeEntryQuery, unknown, unknown, unknown>("/", timeEntriesRangeSchema, async request => {
+		return await TimeEntries.getTimeEntriesByTimeRange(request.query.start_date, request.query.end_date);
 	});
 };

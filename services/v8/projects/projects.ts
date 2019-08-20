@@ -4,9 +4,9 @@ import {ProjectBody, ProjectParams} from "../../../models/Project";
 
 import { Projects } from "../../../db/projects";
 
-const { responseProject } = require("../../../schema/schema");
-const { responseProjectUsers } = require("../../../schema/schema");
-const { responseTask } = require("../../../schema/schema");
+import { responseProject } from "../../../schema/schema";
+import { responseProjectUsers } from "../../../schema/schema";
+import { responseTask } from "../../../schema/schema";
 
 const successfulResponse = {
 	200: {
