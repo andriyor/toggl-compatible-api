@@ -193,7 +193,10 @@ export const responseProjectUsers = {
 	},
 	rate: {
 		type: "integer"
-	}
+	},
+	at: {
+		type: "string"
+	},
 };
 
 export const responseWorkspaceUsers = {

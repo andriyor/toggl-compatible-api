@@ -1,8 +1,9 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
-const { ProjectUsers } = require("../../../db/projectUsers");
-const { responseProjectUsers } = require("../../../schema/schema");
+import { ProjectUsers } from "../../../db/projectUsers";
+import { responseProjectUsers } from "../../../schema/schema";
+import {ProjectUsersBody, ProjectUsersParams} from "../../../models/ProjectUser";
 
 const successfulResponse = {
 	200: {
@@ -17,9 +18,7 @@ const successfulResponse = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const { id, at, ...projectUserPost } = responseProjectUsers;
 	const projectUserPostPutSchema = {
 		schema: {
@@ -38,7 +37,7 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.post("/", projectUserPostPutSchema, async request => {
+	fastify.post<unknown, unknown, unknown, ProjectUsersBody>("/", projectUserPostPutSchema, async request => {
 		const projectUser = await ProjectUsers.create(request.body.project_user);
 		return { data: projectUser };
 	});
@@ -74,11 +73,8 @@ module.exports = async (
 			response: successfulResponse
 		}
 	};
-	fastify.put("/:project_user_id", projectUserPutSchema, async request => {
-		const projectUser = await ProjectUsers.updateOne(
-			request.params.project_user_id,
-			request.body.project_user
-		);
+	fastify.put<unknown, ProjectUsersParams, unknown, ProjectUsersBody>("/:project_user_id", projectUserPutSchema, async request => {
+		const projectUser = await ProjectUsers.updateOne(request.params.project_user_id, request.body.project_user);
 		return { data: projectUser };
 	});
 
@@ -89,7 +85,7 @@ module.exports = async (
 			params: projectUsersIdParam
 		}
 	};
-	fastify.delete("/:project_user_id", projectUsersDeleteSchema, async request => {
+	fastify.delete<unknown, ProjectUsersParams, unknown, unknown>("/:project_user_id", projectUsersDeleteSchema, async request => {
 		const projectUsersIds = request.params.project_user_id.split(",");
 		for (const projectUsersId of projectUsersIds) {
 			await ProjectUsers.destroy(projectUsersId);

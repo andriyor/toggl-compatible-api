@@ -1,7 +1,8 @@
 import pool from './db';
+import {ProjectUser} from "../models/ProjectUser";
 
-class ProjectUsers {
-	static getValues(projectUser: any, oldProjectUser: any) {
+export class ProjectUsers {
+	static getValues(projectUser: ProjectUser, oldProjectUser: ProjectUser) {
 		return [
 			projectUser.pid || oldProjectUser.pid,
 			projectUser.uid || oldProjectUser.uid,
@@ -12,15 +13,15 @@ class ProjectUsers {
 		];
 	}
 
-	static async create(projectUsers: any) {
+	static async create(projectUser: ProjectUser) {
 		const createProjectUserQuery = `INSERT INTO project_users(pid, uid, wid, manager, rate, at)
                                     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
-		const projectUserValues = ProjectUsers.getValues(projectUsers, {});
+		const projectUserValues = ProjectUsers.getValues(projectUser, {} as ProjectUser);
 		const { rows } = await pool.query(createProjectUserQuery, projectUserValues);
 		return rows[0];
 	}
 
-	static getValuesForUpdate(projectUser: any, oldProjectUser: any) {
+	static getValuesForUpdate(projectUser: ProjectUser, oldProjectUser: ProjectUser) {
 		return [
 			projectUser.hasOwnProperty("manager") ? projectUser.manager : oldProjectUser.manager,
 			projectUser.rate || oldProjectUser.rate,
@@ -28,13 +29,13 @@ class ProjectUsers {
 		];
 	}
 
-	static async getById(projectUserId: number) {
+	static async getById(projectUserId: string) {
 		const query = "SELECT * FROM project_users WHERE id = $1";
 		const { rows } = await pool.query(query, [projectUserId]);
 		return rows[0];
 	}
 
-	static async updateOne(projectUserId: number, projectUser: any) {
+	static async updateOne(projectUserId: string, projectUser: ProjectUser) {
 		const findOneQuery = "SELECT * FROM project_users WHERE id = $1";
 		const result = await pool.query(findOneQuery, [projectUserId]);
 
@@ -52,7 +53,7 @@ class ProjectUsers {
 		}
 	}
 
-	static async getWithFullname(projectUsersId: number) {
+	static async getWithFullname(projectUsersId: string) {
 		const findOneQuery = `SELECT project_users.*, users.fullname
                           FROM project_users
                                    right join users on Users.id = project_users.uid
@@ -61,17 +62,13 @@ class ProjectUsers {
 		return rows[0];
 	}
 
-	static async destroy(projectUsersId: number) {
+	static async destroy(projectUsersId: string) {
 		const query = "DELETE FROM project_users WHERE id = $1;";
 		await pool.query(query, [projectUsersId]);
 	}
 
-	static async destroyByProjectId(projectId: number) {
+	static async destroyByProjectId(projectId: string) {
 		const query = "DELETE FROM project_users WHERE pid = $1;";
 		await pool.query(query, [projectId]);
 	}
 }
-
-module.exports = {
-	ProjectUsers
-};
