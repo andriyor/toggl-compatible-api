@@ -1,7 +1,9 @@
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
+
 import { Clients } from "../../../db/clients";
-import { ClientBody, ClientParams, ClientQuery } from "../../../models/Client";
+import { ClientBody, ClientParams } from "../../../models/Client";
+import { ActiveQuery } from "../../../models/ActiveQuery";
 import { responseClient } from "../../../schema/schema";
 import { responseProject } from "../../../schema/schema";
 
@@ -121,7 +123,7 @@ module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage
 			}
 		}
 	};
-	fastify.get<ClientQuery, ClientParams, unknown, unknown>(
+	fastify.get<ActiveQuery, ClientParams, unknown, unknown>(
 		"/:client_id/projects",
 		clientProjectsSchema,
 		async request => {

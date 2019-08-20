@@ -1,17 +1,20 @@
+import {WorkspaceBody, WorkspaceParams} from "../../../models/Workspace";
+
 const auth = require("basic-auth");
 import fastify from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 
-const { Users } = require("../../../db/users");
-const { Workspaces } = require("../../../db/workspaces");
-const { responseUser } = require("../../../schema/schema");
-const { responseClient } = require("../../../schema/schema");
-const { responseGroup } = require("../../../schema/schema");
-const { responseProject } = require("../../../schema/schema");
-const { responseTask } = require("../../../schema/schema");
-const { responseTag } = require("../../../schema/schema");
-const { responseProjectUsers } = require("../../../schema/schema");
-const { responseWorkspaceUsers } = require("../../../schema/schema");
+import { Users } from "../../../db/users";
+import { Workspaces } from "../../../db/workspaces";
+import { responseUser } from "../../../schema/schema";
+import { responseClient } from "../../../schema/schema";
+import { responseGroup } from "../../../schema/schema";
+import { responseProject } from "../../../schema/schema";
+import { responseTask } from "../../../schema/schema";
+import { responseTag } from "../../../schema/schema";
+import { responseProjectUsers } from "../../../schema/schema";
+import { responseWorkspaceUsers } from "../../../schema/schema";
+import {ActiveQuery} from "../../../models/ActiveQuery";
 
 const responseWorkspace = {
 	id: {
@@ -52,9 +55,7 @@ const responseWorkspace = {
 	}
 };
 
-module.exports = async (
-	fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>
-) => {
+module.exports = async (fastify: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>) => {
 	const workspacesSchema = {
 		schema: {
 			tags: ["workspaces"],
@@ -108,7 +109,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id", workspaceByIdSchema, async (request, reply) => {
+	fastify.get<unknown, WorkspaceParams, any, unknown>("/:workspace_id", workspaceByIdSchema, async (request, reply) => {
 		const user = auth.parse(request.headers.authorization);
 		const users = await Users.findByUsername(user.name);
 		if (!users.length || users.password !== users.password) {
@@ -153,7 +154,7 @@ module.exports = async (
 			summary: "Update workspace"
 		}
 	};
-	fastify.put("/:workspace_id", updateWorkspaceSchema, async request => {
+	fastify.put<unknown, WorkspaceParams, unknown, WorkspaceBody>("/:workspace_id", updateWorkspaceSchema, async request => {
 		await Workspaces.updateOne(request.body.workspace, request.params.workspace_id);
 		const workspace = await Workspaces.getById(request.params.workspace_id);
 		return { data: workspace };
@@ -175,7 +176,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/users", getWorkspaceUsers, async request => {
+	fastify.get<unknown, WorkspaceParams, unknown, unknown>("/:workspace_id/users", getWorkspaceUsers, async request => {
 		return await Workspaces.getWorkspaceUsersByWorkspaceId(request.params.workspace_id);
 	});
 
@@ -204,7 +205,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/clients", getWorkspaceClients, async request => {
+	fastify.get<unknown, WorkspaceParams, unknown, unknown>("/:workspace_id/clients", getWorkspaceClients, async request => {
 		return await Workspaces.getWorkspaceClientsByWorkspaceId(request.params.workspace_id);
 	});
 
@@ -224,7 +225,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/groups", getWorkspaceGroups, async request => {
+	fastify.get<unknown, WorkspaceParams, unknown, unknown>("/:workspace_id/groups", getWorkspaceGroups, async request => {
 		return await Workspaces.getWorkspaceGroupsByWorkspaceId(request.params.workspace_id);
 	});
 
@@ -250,14 +251,11 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/projects", getWorkspaceProjects, async request => {
+	fastify.get<ActiveQuery, WorkspaceParams, unknown, unknown>("/:workspace_id/projects", getWorkspaceProjects, async request => {
 		if (request.query.active === "both") {
 			return await Workspaces.getWorkspaceProjects(request.params.workspace_id);
 		}
-		return await Workspaces.getWorkspaceProjectsByActive(
-			request.params.workspace_id,
-			request.query.active
-		);
+		return await Workspaces.getWorkspaceProjectsByActive(request.params.workspace_id, request.query.active);
 	});
 
 	const getWorkspaceTasks = {
@@ -281,14 +279,11 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/tasks", getWorkspaceTasks, async request => {
+	fastify.get<ActiveQuery, WorkspaceParams, unknown, unknown>("/:workspace_id/tasks", getWorkspaceTasks, async request => {
 		if (request.query.active === "both") {
 			return await Workspaces.getWorkspaceTasks(request.params.workspace_id);
 		}
-		return await Workspaces.getWorkspaceTasksByActive(
-			request.params.workspace_id,
-			request.query.active
-		);
+		return await Workspaces.getWorkspaceTasksByActive(request.params.workspace_id, request.query.active);
 	});
 
 	const getWorkspaceTags = {
@@ -307,11 +302,8 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/tags", getWorkspaceTags, async request => {
-		return await Workspaces.getWorkspaceTagsByActive(
-			request.params.workspace_id,
-			request.query.active
-		);
+	fastify.get<ActiveQuery, WorkspaceParams, unknown, unknown>("/:workspace_id/tags", getWorkspaceTags, async request => {
+		return await Workspaces.getWorkspaceTags(request.params.workspace_id);
 	});
 
 	const getWorkspaceProjectUsers = {
@@ -330,7 +322,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/project_users", getWorkspaceProjectUsers, async request => {
+	fastify.get<unknown, WorkspaceParams, unknown, unknown>("/:workspace_id/project_users", getWorkspaceProjectUsers, async request => {
 		return await Workspaces.getWorkspaceProjectUsers(request.params.workspace_id);
 	});
 
@@ -363,7 +355,7 @@ module.exports = async (
 			}
 		}
 	};
-	fastify.get("/:workspace_id/workspace_users", getWorkspaceWorkspaceUsers, async request => {
+	fastify.get<unknown, WorkspaceParams, unknown, unknown>("/:workspace_id/workspace_users", getWorkspaceWorkspaceUsers, async request => {
 		return await Workspaces.getWorkspaceWorkspaceUsers(request.params.workspace_id);
 	});
 };

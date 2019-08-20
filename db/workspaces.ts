@@ -1,13 +1,14 @@
 import pool from './db';
+import {Workspace} from "../models/Workspace";
 
-class Workspaces {
-	static async getById(workspaceId: number) {
+export class Workspaces {
+	static async getById(workspaceId: string) {
 		const query = "SELECT * FROM workspaces WHERE id = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows[0];
 	}
 
-	static getValues(workspace: any, oldWorkspace: any) {
+	static getValues(workspace: Workspace, oldWorkspace: Workspace) {
 		return [
 			workspace.name || oldWorkspace.name,
 			workspace.hasOwnProperty("premium") ? workspace.admin : oldWorkspace.premium,
@@ -26,7 +27,7 @@ class Workspaces {
 		];
 	}
 
-	static async updateOne(workspace: any, workspace_id: any) {
+	static async updateOne(workspace: Workspace, workspace_id: string) {
 		const findOneWorkspaceQuery = "SELECT * FROM projects WHERE id = $1";
 		const result = await pool.query(findOneWorkspaceQuery, [workspace_id]);
 
@@ -47,7 +48,7 @@ class Workspaces {
 		return rows[0];
 	}
 
-	static async getWorkspacesByUserId(userId: number) {
+	static async getWorkspacesByUserId(userId: string) {
 		const userWorkspacesQuery = `SELECT workspaces.id,
                                         name,
                                         premium,
@@ -67,7 +68,7 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceUsersByWorkspaceId(workspace_id: number) {
+	static async getWorkspaceUsersByWorkspaceId(workspace_id: string) {
 		const query = `SELECT users.id,
                           api_token,
                           default_wid,
@@ -94,7 +95,7 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceClientsByWorkspaceId(workspaceId: number) {
+	static async getWorkspaceClientsByWorkspaceId(workspaceId: string) {
 		const query = `SELECT clients.id,
                           clients.name,
                           wid,
@@ -109,49 +110,49 @@ class Workspaces {
 		return rows;
 	}
 
-	static async getWorkspaceGroupsByWorkspaceId(workspaceId: number) {
+	static async getWorkspaceGroupsByWorkspaceId(workspaceId: string) {
 		const query = "SELECT * FROM groups WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceProjectsByActive(workspaceId: number, active = true) {
+	static async getWorkspaceProjectsByActive(workspaceId: string, active = "true") {
 		const query = "SELECT * FROM projects WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
 	}
 
-	static async getWorkspaceProjects(workspaceId: number) {
+	static async getWorkspaceProjects(workspaceId: string) {
 		const query = "SELECT * FROM projects WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceTasksByActive(workspaceId: number, active = true) {
+	static async getWorkspaceTasksByActive(workspaceId: string, active = "true") {
 		const query = "SELECT * FROM tasks WHERE wid = $1 AND active = $2";
 		const { rows } = await pool.query(query, [workspaceId, active]);
 		return rows;
 	}
 
-	static async getWorkspaceTasks(workspaceId: number) {
+	static async getWorkspaceTasks(workspaceId: string) {
 		const query = "SELECT * FROM tasks WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceTagsByActive(workspaceId: number) {
+	static async getWorkspaceTags(workspaceId: string) {
 		const query = "SELECT * FROM tags WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceProjectUsers(workspaceId: number) {
+	static async getWorkspaceProjectUsers(workspaceId: string) {
 		const query = "SELECT * FROM project_users WHERE wid = $1";
 		const { rows } = await pool.query(query, [workspaceId]);
 		return rows;
 	}
 
-	static async getWorkspaceWorkspaceUsers(workspaceId: number) {
+	static async getWorkspaceWorkspaceUsers(workspaceId: string) {
 		const query = `SELECT workspace_users.*, users.email, users.fullname AS name, users.at
                    FROM workspace_users
                             RIGHT JOIN users ON users.id = workspace_users.uid
@@ -160,7 +161,3 @@ class Workspaces {
 		return rows;
 	}
 }
-
-module.exports = {
-	Workspaces
-};

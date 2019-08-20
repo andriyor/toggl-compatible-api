@@ -13,13 +13,3 @@ export interface ClientBody {
 export interface ClientParams {
 	client_id: string;
 }
-
-enum Active {
-	TRUE = "true",
-	FALSE = "false",
-	BOTH = "both"
-}
-
-export interface ClientQuery {
-	active: Active;
-}
