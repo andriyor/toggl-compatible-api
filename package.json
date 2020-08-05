@@ -19,7 +19,7 @@
   "dependencies": {
     "basic-auth": "^2.0.1",
     "faker": "github:Marak/faker.js",
-    "fastify": "^2.7.1",
+    "fastify": "^2.15.1",
     "fastify-autoload": "^1.0.0",
     "fastify-basic-auth": "^0.4.0",
     "fastify-cli": "^1.1.0",
